@@ -6,12 +6,15 @@ import org.http4s.circe.CirceEntityCodec._
 import ApplicationEncodersDecoders._
 
 trait GitHubClient[F[_]] {
-  def contributors(owner: String, repo: String)      : F[List[Contributors]]
+  def contributors(owner: String, repo: String): F[List[Contributors]]
 }
 
 object GitHubClient {
-  def imp[F[_] : Sync](httpClient : Client[F]) = new GitHubClient[F] {
-    def contributors(owner: String, repo: String) : F[List[Contributors]] = httpClient.expect[List[Contributors]](s"https://api.github.com/" +
-      s"repos/${owner}/${repo}/contributors")
+  def imp[F[_]: Sync](httpClient: Client[F]) = new GitHubClient[F] {
+    def contributors(owner: String, repo: String): F[List[Contributors]] =
+      httpClient.expect[List[Contributors]](
+        s"https://api.github.com/" +
+          s"repos/${owner}/${repo}/contributors"
+      )
   }
 }
