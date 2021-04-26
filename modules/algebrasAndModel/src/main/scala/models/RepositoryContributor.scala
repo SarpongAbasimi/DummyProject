@@ -1,7 +1,7 @@
 package models
-import utils.Utils._
+import utils.Types._
 
-sealed trait Contributor
+sealed trait Contributor extends Product with Serializable
 
 final case class RepositoryContributor(
     login: Login,

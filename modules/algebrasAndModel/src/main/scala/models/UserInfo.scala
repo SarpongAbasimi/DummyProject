@@ -1,7 +1,7 @@
 package models
-import utils.Utils._
+import utils.Types._
 
-sealed trait Details
+sealed trait Details extends Product with Serializable
 
 final case class UserDetails(
     login: Login,

@@ -1,6 +1,6 @@
 package utils
 
-object Utils {
+object Types {
   final case class Login(login: String)                             extends AnyVal
   final case class Id(id: Int)                                      extends AnyVal
   final case class NodeId(nodeId: String)                           extends AnyVal

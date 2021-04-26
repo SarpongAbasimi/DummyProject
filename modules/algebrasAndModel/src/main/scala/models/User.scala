@@ -1,6 +1,6 @@
 package models
-import utils.Utils._
+import utils.Types._
 
-sealed trait GitHubUser
+sealed trait GitHubUser extends Product with Serializable
 
 final case class User(userName: Name) extends GitHubUser

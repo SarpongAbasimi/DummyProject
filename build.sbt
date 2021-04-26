@@ -22,15 +22,12 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
   .settings(
     moduleName := "persistenceService"
   )
-  .settings(name := (moduleName.value))
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
   .settings(moduleName := "algebrasAndModel", applicationSettings)
-  .settings(name := (moduleName.value))
 
 lazy val users = (project in file("modules/users"))
   .settings(moduleName := "users", applicationSettings)
-  .settings(name := (moduleName.value))
   .dependsOn(
     algebrasAndModel
   )

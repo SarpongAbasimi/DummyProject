@@ -1,7 +1,7 @@
 package models
-import utils.Utils._
+import utils.Types._
 
-sealed trait GitHubTag
+sealed trait GitHubTag extends Product with Serializable
 
 final case class RepositoryTag(
     versionName: VersionName,
