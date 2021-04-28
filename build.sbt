@@ -20,7 +20,11 @@ lazy val applicationSettings = Seq(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser"
-  ).map(_ % circeVersion)
+  ).map(_ % circeVersion),
+  libraryDependencies ++= Seq(
+    "org.flywaydb"   % "flyway-maven-plugin" % "7.8.2",
+    "com.h2database" % "h2"                  % "1.4.197"
+  )
 )
 
 lazy val persistenceService = (project in file("modules/persistenceService"))
