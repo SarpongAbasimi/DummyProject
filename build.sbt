@@ -1,15 +1,16 @@
-val http4sVersion = "0.21.21"
-val circeVersion  = "0.12.3"
-
+val http4sVersion      = "0.21.21"
+val circeVersion       = "0.12.3"
+lazy val doobieVersion = "0.12.1"
 lazy val applicationSettings = Seq(
   version := "0.1",
   scalaVersion := "2.13.5",
   libraryDependencies ++= Seq(
-    "org.http4s"     %% "http4s-dsl"                    % http4sVersion,
-    "org.http4s"     %% "http4s-blaze-server"           % http4sVersion,
-    "org.http4s"     %% "http4s-blaze-client"           % http4sVersion,
-    "com.codecommit" %% "cats-effect-testing-scalatest" % "1.0-25-c4685f2" % Test,
-    "org.http4s"     %% "http4s-circe"                  % http4sVersion
+    "org.http4s"            %% "http4s-dsl"                    % http4sVersion,
+    "org.http4s"            %% "http4s-blaze-server"           % http4sVersion,
+    "org.http4s"            %% "http4s-blaze-client"           % http4sVersion,
+    "com.codecommit"        %% "cats-effect-testing-scalatest" % "1.0-25-c4685f2" % Test,
+    "org.http4s"            %% "http4s-circe"                  % http4sVersion,
+    "com.github.pureconfig" %% "pureconfig"                    % "0.15.0"
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -20,7 +21,13 @@ lazy val applicationSettings = Seq(
 
 lazy val persistenceService = (project in file("modules/persistenceService"))
   .settings(
-    moduleName := "persistenceService"
+    moduleName := "persistenceService",
+    libraryDependencies ++= Seq(
+      "org.tpolecat" %% "doobie-core"     % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres" % doobieVersion,
+      "org.tpolecat" %% "doobie-specs2"   % doobieVersion
+    ),
+    applicationSettings
   )
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
