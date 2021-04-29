@@ -1,5 +1,5 @@
-create table user(
-    id uuid PRIMARY KEY,
-    username VARCHAR(200) UNIQUE NOT NULL
-    name     VARCHAR(200)
+create table userdb(
+    id uuid PRIMARY KEY NOT NULL,
+    username VARCHAR UNIQUE NOT NULL,
+    name     VARCHAR NOT NULL
 );
