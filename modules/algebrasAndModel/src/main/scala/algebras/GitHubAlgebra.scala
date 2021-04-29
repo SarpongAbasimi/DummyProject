@@ -1,8 +1,8 @@
 package algebras
-import models.{OwnerDetails, User, UserDetails}
+import models.{Contributor, GitHubTag, OwnerDetails, User, UserDetails}
 
 trait GitHubAlgebra[F[_]] {
-  def getUserFromGitHub(userName: User): F[UserDetails]
-  def listRepositoryData[B[_], A](ownerDetails: OwnerDetails): F[List[A]]
-  def listFollowersOfAUser[B[_], A](user: User): F[List[A]]
+  def getUserFromGitHub(userName: User): F[GitHubTag]
+  def listRepositoryData(ownerDetails: OwnerDetails): F[List[Contributor]]
+  def listFollowersOfAUser[A](user: User): F[List[UserDetails]]
 }
