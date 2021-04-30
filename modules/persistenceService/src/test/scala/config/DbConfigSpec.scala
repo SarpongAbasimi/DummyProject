@@ -10,6 +10,7 @@ class DbConfigSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers {
     "loadApplicationConfig" in {
       ApplicationConfig
         .loadApplicationConfig[IO]("dummy.jdbc")
+        .attempt
         .map(result => assert(result.isRight))
     }
   }
