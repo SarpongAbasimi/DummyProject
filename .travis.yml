@@ -1,0 +1,26 @@
+language: scala
+
+jdk: openjdk8
+
+scala:
+  - 2.13.5
+
+services:
+  - postgresql
+
+before_script:
+  - psql -c 'create database dummyproject;' -U postgres
+  - psql -c 'create table userdb(
+    id uuid PRIMARY KEY NOT NULL,
+    username VARCHAR UNIQUE NOT NULL,
+    name     VARCHAR NOT NULL
+    );' -U postgres
+
+env:
+  - DB_URL=jdbc:postgresql:dummyproject
+  - DB_USERNAME=postgres
+  - DB_Driver=org.postgresql.Driver
+
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION test
+

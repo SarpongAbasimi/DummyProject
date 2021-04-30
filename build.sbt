@@ -3,6 +3,7 @@ val circeVersion                = "0.12.3"
 lazy val doobieVersion          = "0.12.1"
 lazy val pureConfigVersion      = "0.15.0"
 lazy val catsEffectTestVersions = "0.5.3"
+//lazy val logForCatVersion       = "1.2.0"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -15,12 +16,18 @@ lazy val applicationSettings = Seq(
     "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test
+//    "org.typelevel"         %% "log4cats-core"                 % logForCatVersion,
+//    "org.typelevel"         %% "log4cats-slf4j"                % logForCatVersion
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser"
-  ).map(_ % circeVersion)
+  ).map(_ % circeVersion),
+  libraryDependencies ++= Seq(
+    "org.flywaydb"   % "flyway-maven-plugin" % "7.8.2",
+    "com.h2database" % "h2"                  % "1.4.197"
+  )
 )
 
 lazy val persistenceService = (project in file("modules/persistenceService"))
@@ -47,6 +54,10 @@ lazy val root = (project in file("."))
   .settings(
     name := "dummyProject",
     applicationSettings
+  )
+  .dependsOn(
+    persistenceService,
+    algebrasAndModel
   )
   .aggregate(
     persistenceService,

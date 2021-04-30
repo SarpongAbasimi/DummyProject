@@ -9,6 +9,6 @@ class DbConnection[F[_]: ContextShift](config: ApplicationConfig)(implicit async
     config.driver.name,
     config.url.url,
     config.user.user,
-    config.password.password.getOrElse("")
+    config.password.password
   )
 }
