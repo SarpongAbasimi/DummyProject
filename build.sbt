@@ -1,9 +1,10 @@
-val http4sVersion               = "0.21.21"
-val circeVersion                = "0.12.3"
-lazy val doobieVersion          = "0.12.1"
-lazy val pureConfigVersion      = "0.15.0"
-lazy val catsEffectTestVersions = "0.5.3"
-//lazy val logForCatVersion       = "1.2.0"
+lazy val http4sVersion              = "0.21.21"
+lazy val circeVersion               = "0.12.3"
+lazy val doobieVersion              = "0.12.1"
+lazy val pureConfigVersion          = "0.15.0"
+lazy val catsEffectTestVersions     = "0.5.3"
+lazy val logForCatVersion           = "1.1.1"
+lazy val testContainersScalaVersion = "0.39.1"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -15,9 +16,8 @@ lazy val applicationSettings = Seq(
     "org.http4s"            %% "http4s-circe"                  % http4sVersion,
     "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
-    "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test
-//    "org.typelevel"         %% "log4cats-core"                 % logForCatVersion,
-//    "org.typelevel"         %% "log4cats-slf4j"                % logForCatVersion
+    "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
+    "io.chrisdavenport"     %% "log4cats-slf4j"                % logForCatVersion
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -33,10 +33,13 @@ lazy val applicationSettings = Seq(
 lazy val persistenceService = (project in file("modules/persistenceService"))
   .settings(
     moduleName := "persistenceService",
+    Test / fork := true,
     libraryDependencies ++= Seq(
-      "org.tpolecat" %% "doobie-core"     % doobieVersion,
-      "org.tpolecat" %% "doobie-postgres" % doobieVersion,
-      "org.tpolecat" %% "doobie-specs2"   % doobieVersion
+      "org.tpolecat" %% "doobie-core"                     % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres"                 % doobieVersion,
+      "org.tpolecat" %% "doobie-specs2"                   % doobieVersion,
+      "com.dimafeng" %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
+      "com.dimafeng" %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test"
     ),
     applicationSettings
   )
