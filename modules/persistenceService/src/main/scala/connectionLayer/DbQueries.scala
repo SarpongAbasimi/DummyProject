@@ -25,5 +25,5 @@ object DbQueries {
       .query[User]
 
   def remove(userName: UserName): Update0 =
-    sql"delete from userdb where name = $userName".update
+    sql"delete from userdb where username = $userName".update
 }

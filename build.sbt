@@ -5,6 +5,8 @@ lazy val pureConfigVersion          = "0.15.0"
 lazy val catsEffectTestVersions     = "0.5.3"
 lazy val logForCatVersion           = "1.1.1"
 lazy val testContainersScalaVersion = "0.39.1"
+lazy val scalaCheckVersion          = "1.14.1"
+lazy val scalaTestScalaCheck        = "3.2.5.0"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -35,11 +37,13 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
     moduleName := "persistenceService",
     Test / fork := true,
     libraryDependencies ++= Seq(
-      "org.tpolecat" %% "doobie-core"                     % doobieVersion,
-      "org.tpolecat" %% "doobie-postgres"                 % doobieVersion,
-      "org.tpolecat" %% "doobie-specs2"                   % doobieVersion,
-      "com.dimafeng" %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
-      "com.dimafeng" %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test"
+      "org.tpolecat"      %% "doobie-core"                     % doobieVersion,
+      "org.tpolecat"      %% "doobie-postgres"                 % doobieVersion,
+      "org.tpolecat"      %% "doobie-specs2"                   % doobieVersion,
+      "com.dimafeng"      %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
+      "com.dimafeng"      %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
+      "org.scalacheck"    %% "scalacheck"                      % scalaCheckVersion          % "test",
+      "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheck        % "test"
     ),
     applicationSettings
   )
