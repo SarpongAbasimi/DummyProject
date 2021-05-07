@@ -19,7 +19,8 @@ lazy val applicationSettings = Seq(
     "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                % logForCatVersion
+    "io.chrisdavenport"     %% "log4cats-slf4j"                % logForCatVersion,
+    "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
