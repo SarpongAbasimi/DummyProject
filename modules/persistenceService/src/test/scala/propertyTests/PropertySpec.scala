@@ -13,12 +13,14 @@ import config.{User => ConfigUser}
 import java.util.UUID
 import doobie.implicits._
 import org.scalacheck.{Arbitrary, Gen}
+import org.scalatest.{BeforeAndAfter}
 
 class PropertySpec
     extends AsyncFreeSpec
     with AsyncIOSpec
     with ScalaCheckDrivenPropertyChecks
     with ForAllTestContainer
+    with BeforeAndAfter
     with Matchers {
 
   override val container: PostgreSQLContainer = PostgreSQLContainer()
@@ -28,6 +30,13 @@ class PropertySpec
   lazy val user          = ConfigUser(container.username)
   lazy val password      = PassWord(container.password)
 
+  before {
+    DbMigrations
+      .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
+      .map(_.migrationsExecuted)
+      .unsafeRunSync()
+  }
+
   implicit val nameArb: Arbitrary[Name]         = Arbitrary(Gen.identifier.map(Name(_)))
   implicit val userNameArb: Arbitrary[UserName] = Arbitrary(Gen.identifier.map(UserName(_)))
 
@@ -36,16 +45,12 @@ class PropertySpec
     "after creating user table" - {
       "should allows user to be inserted into userdb" in {
 
-        val migrationExecuted = DbMigrations
-          .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
-          .map(_.migrationsExecuted)
-
         forAll { (id: UUID, name: Name, userName: UserName) =>
           val theUserID = Id(id)
           val theUser   = User(theUserID, name, userName)
 
           val result: IO[Option[User]] = for {
-            _ <- migrationExecuted
+            _ <- IO(println("Starting Migrations..."))
             dbQueries = new DbQueries[IO]
             dbConnection = new DbConnection[IO](
               ApplicationConfig(driverName, connectionUrl, user, password)
@@ -60,16 +65,13 @@ class PropertySpec
       }
 
       "should allows user to be deleted from the userdb" in {
-        val migrationExecuted = DbMigrations
-          .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
-          .map(_.migrationsExecuted)
 
         forAll { (id: UUID, name: Name, userName: UserName) =>
           val theUserID = Id(id)
           val theUser   = User(theUserID, name, userName)
 
           val result: IO[Option[User]] = for {
-            _ <- migrationExecuted
+            _ <- IO(println("Starting Migrations..."))
             dbQueries = new DbQueries[IO]
             dbConnection = new DbConnection[IO](
               ApplicationConfig(driverName, connectionUrl, user, password)
