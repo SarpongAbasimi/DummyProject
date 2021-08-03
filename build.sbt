@@ -1,3 +1,5 @@
+import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
+
 lazy val http4sVersion              = "0.21.21"
 lazy val circeVersion               = "0.12.3"
 lazy val doobieVersion              = "0.12.1"
@@ -29,7 +31,13 @@ lazy val applicationSettings = Seq(
   libraryDependencies ++= Seq(
     "org.flywaydb"   % "flyway-maven-plugin" % "7.8.2",
     "com.h2database" % "h2"                  % "1.4.197"
-  )
+  ),
+  assemblyMergeStrategy in assembly := {
+    case "application.conf" => MergeStrategy.concat
+    case PathList("META-INF", "MANIFEST.MF", "META-INF/MANIFEST.MF", "javax", "servlet", xs @ _*) =>
+      MergeStrategy.discard
+    case _ => MergeStrategy.first
+  }
 )
 
 lazy val persistenceService = (project in file("modules/persistenceService"))
