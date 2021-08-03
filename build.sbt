@@ -34,7 +34,7 @@ lazy val applicationSettings = Seq(
   ),
   assemblyMergeStrategy in assembly := {
     case "application.conf" => MergeStrategy.concat
-    case PathList("META-INF", "MANIFEST.MF", "META-INF/MANIFEST.MF", "javax", "servlet", xs @ _*) =>
+    case PathList("META-INF", "MANIFEST.MF") =>
       MergeStrategy.discard
     case _ => MergeStrategy.first
   }
@@ -61,7 +61,11 @@ lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
   .settings(moduleName := "algebrasAndModel", applicationSettings)
 
 lazy val users = (project in file("modules/users"))
-  .settings(moduleName := "users", applicationSettings)
+  .settings(
+    moduleName := "users",
+    applicationSettings,
+    assembly / assemblyJarName := "algebrasAndModel-assembly-0.1.jar"
+  )
   .dependsOn(
     algebrasAndModel
   )
@@ -69,6 +73,7 @@ lazy val users = (project in file("modules/users"))
 lazy val root = (project in file("."))
   .settings(
     name := "dummyProject",
+    assembly / assemblyJarName := "dummyProject-assembly-0.1.jar",
     applicationSettings
   )
   .dependsOn(
