@@ -19,7 +19,6 @@ lazy val applicationSettings = Seq(
     "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                % logForCatVersion,
     "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion
   ),
   libraryDependencies ++= Seq(
@@ -46,7 +45,8 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
       "org.scalacheck"    %% "scalacheck"                      % scalaCheckVersion          % "test",
       "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheck        % "test"
     ),
-    applicationSettings
+    applicationSettings,
+    assembly / assemblyJarName := "persistenceService_2.13-0.1.jar"
   )
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))

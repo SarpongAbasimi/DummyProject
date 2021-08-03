@@ -4,24 +4,46 @@ import doobie.{Transactor, Update0}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should.Matchers
 import cats.effect.{ConcurrentEffect, ContextShift, IO}
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord, User => DbUser}
+import migrations.DbMigrations
 import persistenceModel.{Id, Name, User, UserName}
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.global
 
-class DbQueriesSpec extends AnyFunSpec with Matchers with doobie.scalatest.IOChecker {
-  implicit val cs: ContextShift[IO]     = IO.contextShift(global)
-  implicit val ce: ConcurrentEffect[IO] = IO.ioConcurrentEffect
+class DbQueriesSpec
+    extends AnyFunSpec
+    with Matchers
+    with doobie.scalatest.IOChecker
+    with ForAllTestContainer {
 
-  val transactor = Transactor.fromDriverManager[IO](
-    "org.postgresql.Driver",
-    "jdbc:postgresql:dummyproject",
-    "sabasimi",
-    ""
+  implicit val cs: ContextShift[IO]           = IO.contextShift(global)
+  implicit val ce: ConcurrentEffect[IO]       = IO.ioConcurrentEffect
+  override val container: PostgreSQLContainer = PostgreSQLContainer()
+
+  lazy val transactor = Transactor.fromDriverManager[IO](
+    container.driverClassName,
+    container.jdbcUrl,
+    container.username,
+    container.password
   )
 
-  describe("Queries") {
+  override def withFixture(test: NoArgTest) = {
 
+    val driverName    = DriverName(container.driverClassName)
+    val connectionUrl = ConnectionUrl(container.jdbcUrl)
+    val user          = DbUser(container.username)
+    val password      = PassWord(container.password)
+
+    DbMigrations
+      .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
+      .unsafeRunSync()
+    try test()
+    finally {}
+  }
+
+  describe("Queries") {
     describe("insert") {
       describe("when called") {
         it("should be able to insert a resource in the db") {
