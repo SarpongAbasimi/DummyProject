@@ -7,6 +7,7 @@ import cats.effect.{ConcurrentEffect, ContextShift, IO}
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord, User => DbUser}
 import migrations.DbMigrations
+import org.scalatest.Outcome
 import persistenceModel.{Id, Name, User, UserName}
 
 import java.util.UUID
@@ -29,7 +30,7 @@ class DbQueriesSpec
     container.password
   )
 
-  override def withFixture(test: NoArgTest) = {
+  override def withFixture(test: NoArgTest): Outcome = {
 
     val driverName    = DriverName(container.driverClassName)
     val connectionUrl = ConnectionUrl(container.jdbcUrl)
@@ -40,7 +41,6 @@ class DbQueriesSpec
       .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
       .unsafeRunSync()
     try test()
-    finally {}
   }
 
   describe("Queries") {
