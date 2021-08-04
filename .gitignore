@@ -1,5 +1,5 @@
 .bsp
 .idea
 target/
-project/
 run.sh
+.env

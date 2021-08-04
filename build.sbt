@@ -1,3 +1,5 @@
+import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
+
 lazy val http4sVersion              = "0.21.21"
 lazy val circeVersion               = "0.12.3"
 lazy val doobieVersion              = "0.12.1"
@@ -19,7 +21,6 @@ lazy val applicationSettings = Seq(
     "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                % logForCatVersion,
     "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion
   ),
   libraryDependencies ++= Seq(
@@ -30,7 +31,13 @@ lazy val applicationSettings = Seq(
   libraryDependencies ++= Seq(
     "org.flywaydb"   % "flyway-maven-plugin" % "7.8.2",
     "com.h2database" % "h2"                  % "1.4.197"
-  )
+  ),
+  assemblyMergeStrategy in assembly := {
+    case "application.conf" => MergeStrategy.concat
+    case PathList("META-INF", "MANIFEST.MF") =>
+      MergeStrategy.discard
+    case _ => MergeStrategy.first
+  }
 )
 
 lazy val persistenceService = (project in file("modules/persistenceService"))
@@ -46,14 +53,19 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
       "org.scalacheck"    %% "scalacheck"                      % scalaCheckVersion          % "test",
       "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheck        % "test"
     ),
-    applicationSettings
+    applicationSettings,
+    assembly / assemblyJarName := "persistenceService_2.13-0.1.jar"
   )
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
   .settings(moduleName := "algebrasAndModel", applicationSettings)
 
-lazy val users = (project in file("modules/users"))
-  .settings(moduleName := "users", applicationSettings)
+lazy val subscriptionService = (project in file("modules/subscriptionService"))
+  .settings(
+    moduleName := "subscriptionService",
+    applicationSettings,
+    assembly / assemblyJarName := "subscriptionService-assembly-0.1.jar"
+  )
   .dependsOn(
     algebrasAndModel
   )
@@ -61,6 +73,7 @@ lazy val users = (project in file("modules/users"))
 lazy val root = (project in file("."))
   .settings(
     name := "dummyProject",
+    assembly / assemblyJarName := "dummyProject-assembly-0.1.jar",
     applicationSettings
   )
   .dependsOn(
@@ -70,5 +83,5 @@ lazy val root = (project in file("."))
   .aggregate(
     persistenceService,
     algebrasAndModel,
-    users
+    subscriptionService
   )
