@@ -60,11 +60,11 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
   .settings(moduleName := "algebrasAndModel", applicationSettings)
 
-lazy val users = (project in file("modules/users"))
+lazy val subscriptionService = (project in file("modules/subscriptionService"))
   .settings(
-    moduleName := "users",
+    moduleName := "subscriptionService",
     applicationSettings,
-    assembly / assemblyJarName := "algebrasAndModel-assembly-0.1.jar"
+    assembly / assemblyJarName := "subscriptionService-assembly-0.1.jar"
   )
   .dependsOn(
     algebrasAndModel
@@ -83,5 +83,5 @@ lazy val root = (project in file("."))
   .aggregate(
     persistenceService,
     algebrasAndModel,
-    users
+    subscriptionService
   )

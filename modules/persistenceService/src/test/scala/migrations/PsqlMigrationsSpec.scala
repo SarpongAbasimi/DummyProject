@@ -22,7 +22,7 @@ class PsqlMigrationsSpec
 
       DbMigrations
         .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
-        .map(_.migrationsExecuted shouldBe (1))
+        .map(_.migrationsExecuted shouldBe (2))
     }
   }
 }

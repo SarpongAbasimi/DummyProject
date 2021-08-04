@@ -33,8 +33,9 @@ services:
     environment:
       - DB_USERNAME=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_URL=jdbc:postgresql://postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+      - DB_URL=jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
     command:
     - connectRetries=60
+    - DB_URL=jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
     depends_on:
       - db
