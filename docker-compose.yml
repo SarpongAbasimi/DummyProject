@@ -38,8 +38,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
-  web:
-    build: .
-    depends_on:
-      - db
-      - flyway
+# Currently having some errors with web
+#  web:
+#    build: .
+#    depends_on:
+#      - db
+#      - flyway
