@@ -78,7 +78,8 @@ lazy val root = (project in file("."))
   )
   .dependsOn(
     persistenceService,
-    algebrasAndModel
+    algebrasAndModel,
+    subscriptionService
   )
   .aggregate(
     persistenceService,
