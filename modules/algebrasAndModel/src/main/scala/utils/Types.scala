@@ -41,5 +41,14 @@ object Types {
   final case class Owner(owner: String)                             extends AnyVal
   final case class Repo(repo: String)                               extends AnyVal
   final case class Contributions(contributions: Int)                extends AnyVal
+  final case class Organization(organization: String)               extends AnyVal
+  final case class Repository(repository: String)                   extends AnyVal
+  final case class SubscribeAt(subscribeAt: String)                 extends AnyVal
   final case class Commit(sha: Sha, url: Url)
+  final case class SubscriptionData(
+      organization: Organization,
+      repository: Repository,
+      subscribeAt: SubscribeAt
+  )
+  final case class Subscriptions(subscriptions: List[SubscriptionData])
 }
