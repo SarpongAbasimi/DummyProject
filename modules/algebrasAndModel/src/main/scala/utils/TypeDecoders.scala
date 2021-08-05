@@ -16,12 +16,6 @@ object TypeDecoders {
   implicit val postSubscriptionsDecoder: Decoder[PostSubscriptions] =
     deriveDecoder[PostSubscriptions]
 
-  implicit def postSubscriptionDataEntityDecoder[F[_]: Sync]: EntityDecoder[
-    F,
-    PostSubscriptionData
-  ] =
-    jsonOf[F, PostSubscriptionData]
-
   implicit def postSubscriptionsEntityDecoder[F[_]: Sync]: EntityDecoder[F, PostSubscriptions] =
     jsonOf[F, PostSubscriptions]
 }

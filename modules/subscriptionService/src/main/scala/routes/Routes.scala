@@ -6,6 +6,7 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
 import utils.TypeDecoders._
+import utils.TypeEncoders._
 import utils.Types.PostSubscriptions
 import cats.implicits._
 
@@ -32,8 +33,8 @@ object Routes {
     import dsl._
 
     HttpRoutes.of[F] { case req @ POST -> subscription / user =>
-      req.decode[PostSubscriptions] { message =>
-        Ok("")
+      req.decode[PostSubscriptions] { message: PostSubscriptions =>
+        Ok(message)
       }
     }
   }

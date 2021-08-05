@@ -9,20 +9,13 @@ import org.http4s.EntityEncoder
 import org.http4s.circe.jsonEncoderOf
 
 object TypeEncoders {
-  implicit val organizationDecoder: Encoder[Organization] = deriveUnwrappedEncoder[Organization]
-  implicit val repositoryDecoder: Encoder[Repository]     = deriveUnwrappedEncoder[Repository]
-  implicit val postSubscriptionsDataDecoder: Encoder[PostSubscriptionData] =
+  implicit val organizationEncoder: Encoder[Organization] = deriveUnwrappedEncoder[Organization]
+  implicit val repositoryEncoder: Encoder[Repository]     = deriveUnwrappedEncoder[Repository]
+  implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
     deriveEncoder[PostSubscriptionData]
 
-  implicit val postSubscriptionsDecoder: Encoder[PostSubscriptions] =
+  implicit val postSubscriptionsEncoder: Encoder[PostSubscriptions] =
     deriveEncoder[PostSubscriptions]
-
-  implicit def postSubscriptionDataEntityDecoder[F[_]: Sync]: EntityEncoder[
-    F,
-    PostSubscriptionData
-  ] =
-    jsonEncoderOf[F, PostSubscriptionData]
-
-  implicit def postSubscriptionsEntityDecoder[F[_]: Sync]: EntityEncoder[F, PostSubscriptions] =
+  implicit def postSubscriptionsEntityEncoder[F[_]: Sync]: EntityEncoder[F, PostSubscriptions] =
     jsonEncoderOf[F, PostSubscriptions]
 }
