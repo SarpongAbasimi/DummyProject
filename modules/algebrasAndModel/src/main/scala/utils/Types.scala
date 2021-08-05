@@ -45,10 +45,12 @@ object Types {
   final case class Repository(repository: String)                   extends AnyVal
   final case class SubscribeAt(subscribeAt: String)                 extends AnyVal
   final case class Commit(sha: Sha, url: Url)
-  final case class SubscriptionData(
+  final case class GetSubscriptionData(
       organization: Organization,
       repository: Repository,
       subscribeAt: SubscribeAt
   )
-  final case class Subscriptions(subscriptions: List[SubscriptionData])
+  final case class PostSubscriptionData(organization: Organization, repository: Repository)
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])
+  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData])
 }

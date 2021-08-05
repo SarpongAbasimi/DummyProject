@@ -13,9 +13,10 @@ object Server {
     for {
       _ <- BlazeClientBuilder[F](global).stream
       services = (Routes.subscription[F] <+>
-        Routes.userSubscription[F]).orNotFound
+        Routes.getUserSubscription[F] <+>
+        Routes.postUserSubscription[F]).orNotFound
       exitCode <- BlazeServerBuilder[F](global)
-        .bindHttp(8080, "localhost")
+        .bindHttp(5000, "localhost")
         .withHttpApp(services)
         .serve
     } yield exitCode

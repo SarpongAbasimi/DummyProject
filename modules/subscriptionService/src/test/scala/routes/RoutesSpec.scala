@@ -12,17 +12,16 @@ import mockedSubscriptionResponse.MockedResponse
 class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
 
   describe("Routes") {
-
     describe("When a userId is passed to userSubscription") {
       it("should respond with the right data") {
         for {
           request  <- IO.pure(Request[IO](uri = Uri.uri("subscription/user")))
-          response <- Routes.userSubscription[IO].orNotFound(request)
+          response <- Routes.getUserSubscription[IO].orNotFound(request)
         } yield IO(response)
           .asserting { response =>
             response.status.code shouldBe (200)
             response.as[Json].unsafeRunSync() shouldBe (
-              MockedResponse.mockedUserSubscriptionResponse
+              MockedResponse.mockedGetUserSubscriptionResponse
             )
           }
           .unsafeRunSync()
