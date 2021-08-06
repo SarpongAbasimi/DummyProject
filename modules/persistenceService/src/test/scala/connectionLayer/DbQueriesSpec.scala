@@ -39,8 +39,8 @@ class DbQueriesSpec
 
     DbMigrations
       .migrate[IO](ApplicationConfig(driverName, connectionUrl, user, password))
+      .flatMap(_ => IO(test()))
       .unsafeRunSync()
-    try test()
   }
 
   describe("Queries") {

@@ -1,4 +1,7 @@
 package utils
+import io.circe.{Decoder, Encoder}
+import io.circe.generic.extras.semiauto.{deriveUnwrappedDecoder, deriveUnwrappedEncoder}
+import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 object Types {
   final case class Login(login: String)                             extends AnyVal
@@ -41,5 +44,37 @@ object Types {
   final case class Owner(owner: String)                             extends AnyVal
   final case class Repo(repo: String)                               extends AnyVal
   final case class Contributions(contributions: Int)                extends AnyVal
+  final case class Organization(organization: String)               extends AnyVal
+  object Organization {
+    implicit val organizationEncoder: Encoder[Organization] = deriveUnwrappedEncoder[Organization]
+    implicit val organizationDecoder: Decoder[Organization] = deriveUnwrappedDecoder[Organization]
+  }
+  final case class Repository(repository: String) extends AnyVal
+  object Repository {
+    implicit val repositoryDecoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
+    implicit val repositoryEncoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+  }
+  final case class SubscribeAt(subscribeAt: String) extends AnyVal
   final case class Commit(sha: Sha, url: Url)
+  final case class GetSubscriptionData(
+      organization: Organization,
+      repository: Repository,
+      subscribeAt: SubscribeAt
+  )
+  final case class PostSubscriptionData(organization: Organization, repository: Repository)
+  object PostSubscriptionData {
+    implicit val postSubscriptionsDataDecoder: Decoder[PostSubscriptionData] =
+      deriveDecoder[PostSubscriptionData]
+    implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
+      deriveEncoder[PostSubscriptionData]
+  }
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])
+  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData])
+
+  object PostSubscriptions {
+    implicit val postSubscriptionsDecoder: Decoder[PostSubscriptions] =
+      deriveDecoder[PostSubscriptions]
+    implicit val postSubscriptionsEncoder: Encoder[PostSubscriptions] =
+      deriveEncoder[PostSubscriptions]
+  }
 }
