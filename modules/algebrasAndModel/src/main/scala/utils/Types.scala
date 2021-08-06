@@ -3,6 +3,8 @@ import io.circe.{Decoder, Encoder}
 import io.circe.generic.extras.semiauto.{deriveUnwrappedDecoder, deriveUnwrappedEncoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
+trait Subscription extends Product with Serializable
+
 object Types {
   final case class Login(login: String)                             extends AnyVal
   final case class Id(id: Int)                                      extends AnyVal
@@ -69,7 +71,7 @@ object Types {
       deriveEncoder[PostSubscriptionData]
   }
   final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])
-  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData])
+  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData]) extends Subscription
 
   object PostSubscriptions {
     implicit val postSubscriptionsDecoder: Decoder[PostSubscriptions] =
