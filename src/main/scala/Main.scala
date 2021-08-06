@@ -1,6 +1,6 @@
 import cats.effect._
 import Server._
-import config.{ApplicationConfig}
+import config.ApplicationConfig
 import migrations.DbMigrations
 import fs2.Stream
 
