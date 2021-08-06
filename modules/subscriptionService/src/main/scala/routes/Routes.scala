@@ -14,9 +14,9 @@ object Routes {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
-    implicit val postSubscriptionsEntityEncoder: EntityEncoder[F, PostSubscriptions] =
+    implicit val encoder: EntityEncoder[F, PostSubscriptions] =
       jsonEncoderOf[F, PostSubscriptions]
-    implicit val postSubscriptionsEntityDecoder: EntityDecoder[F, PostSubscriptions] =
+    implicit val decoder: EntityDecoder[F, PostSubscriptions] =
       jsonOf[F, PostSubscriptions]
 
     HttpRoutes.of[F] {
@@ -27,41 +27,5 @@ object Routes {
           Created(message)
         }
     }
-
-//  def getUserSubscription[F[_]: Sync]: HttpRoutes[F] = {
-//    val dsl = new Http4sDsl[F] {}
-//    import dsl._
-//    HttpRoutes.of[F] { case GET -> subscription / user =>
-//      Ok(MockedResponse.mockedGetUserSubscriptionResponse)
-//    }
-//  }
-//
-//  def postUserSubscription[F[_]: Sync]: HttpRoutes[F] = {
-//    val dsl = new Http4sDsl[F] {}
-//    import dsl._
-//
-//    implicit val postSubscriptionsEntityEncoder: EntityEncoder[F, PostSubscriptions] =
-//      jsonEncoderOf[F, PostSubscriptions]
-//    implicit val postSubscriptionsEntityDecoder: EntityDecoder[F, PostSubscriptions] =
-//      jsonOf[F, PostSubscriptions]
-//
-//    HttpRoutes.of[F] { case req @ POST -> subscription / user =>
-//      req.decode[PostSubscriptions] { message: PostSubscriptions =>
-//        Created(message)
-//      }
-//    }
-//  }
-
-//  def postUserSubscription[F[_]: Sync]: HttpRoutes[F] = {
-//    val dsl = new Http4sDsl[F] {}
-//    import dsl._
-//
-//    HttpRoutes
-//      .of[F] { case req @ POST -> subscription / user =>
-//        for {
-//          postSubscriptions <- req.attemptAs[PostSubscriptions].foldF()
-//          createdResponse   <- Created(postSubscriptions)
-//        } yield createdResponse
-//      }
   }
 }
