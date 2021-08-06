@@ -1,9 +1,10 @@
-package mockedSubscriptionResponse
-import io.circe.Json
-import io.circe.literal._
+package routes
 
-object MockedResponse {
-  def mockedGetUserSubscriptionResponse: Json = {
+import io.circe.Json
+import io.circe.literal.JsonStringContext
+
+object TestMockedResponse {
+  val mockedGetUserSubscriptionResponse: Json = {
     json"""
         {
           "subscriptions":[
@@ -25,26 +26,20 @@ object MockedResponse {
           ]
         }
         """
+
   }
 
-  def mockedPostUserSubscriptionResponse: Json = {
+  val mockedPostUserSubscriptionResponse: Json = {
     json"""
         {
           "subscriptions":[
             {
               "organization":"47deg",
               "repository":"thool"
-            },
-            {
-              "organization":"higherkindness",
-              "repository":"skeuomorph"
-            },
-            {
-              "organization":"47degrees",
-              "repository":"github4s"
             }
           ]
         }
         """
   }
+
 }

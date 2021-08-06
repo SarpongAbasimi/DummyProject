@@ -10,6 +10,8 @@ lazy val testContainersScalaVersion = "0.39.1"
 lazy val scalaCheckVersion          = "1.14.1"
 lazy val scalaTestScalaCheck        = "3.2.5.0"
 lazy val circeGenericExtra          = "0.13.0"
+lazy val chrisDavenportLog4Cats     = "1.1.1"
+lazy val circeLiteral               = "0.13.0"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -23,7 +25,9 @@ lazy val applicationSettings = Seq(
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
     "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion,
-    "io.circe"              %% "circe-generic-extras"          % circeGenericExtra
+    "io.circe"              %% "circe-generic-extras"          % circeGenericExtra,
+    "io.chrisdavenport"     %% "log4cats-slf4j"                % chrisDavenportLog4Cats,
+    "io.circe"              %% "circe-literal"                 % circeLiteral
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",

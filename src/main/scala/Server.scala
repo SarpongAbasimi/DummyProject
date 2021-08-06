@@ -13,8 +13,7 @@ object Server {
     for {
       _ <- BlazeClientBuilder[F](global).stream
       services = (Routes.subscription[F] <+>
-        Routes.getUserSubscription[F] <+>
-        Routes.postUserSubscription[F]).orNotFound
+        Routes.subscription[F]).orNotFound
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(5000, "localhost")
         .withHttpApp(services)
