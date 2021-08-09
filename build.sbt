@@ -1,17 +1,18 @@
 import sbtassembly.AssemblyPlugin.autoImport.assemblyMergeStrategy
 
-lazy val http4sVersion              = "0.21.21"
-lazy val circeVersion               = "0.12.3"
-lazy val doobieVersion              = "0.12.1"
-lazy val pureConfigVersion          = "0.15.0"
-lazy val catsEffectTestVersions     = "0.5.3"
-lazy val logForCatVersion           = "1.1.1"
-lazy val testContainersScalaVersion = "0.39.1"
-lazy val scalaCheckVersion          = "1.14.1"
-lazy val scalaTestScalaCheck        = "3.2.5.0"
-lazy val circeGenericExtra          = "0.13.0"
-lazy val chrisDavenportLog4Cats     = "1.1.1"
-lazy val circeLiteral               = "0.13.0"
+lazy val http4sVersion                 = "0.21.21"
+lazy val circeVersion                  = "0.12.3"
+lazy val doobieVersion                 = "0.12.1"
+lazy val pureConfigVersion             = "0.15.0"
+lazy val catsEffectTestVersions        = "0.5.3"
+lazy val logForCatVersion              = "1.1.1"
+lazy val testContainersScalaVersion    = "0.39.1"
+lazy val scalaCheckVersion             = "1.14.1"
+lazy val scalaTestScalaCheckVersion    = "3.2.5.0"
+lazy val circeGenericExtraVersion      = "0.13.0"
+lazy val chrisDavenportLog4CatsVersion = "1.1.1"
+lazy val circeLiteralVersion           = "0.13.0"
+lazy val logbackVersion                = "1.2.3"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -25,9 +26,10 @@ lazy val applicationSettings = Seq(
     "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
     "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
     "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion,
-    "io.circe"              %% "circe-generic-extras"          % circeGenericExtra,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                % chrisDavenportLog4Cats,
-    "io.circe"              %% "circe-literal"                 % circeLiteral
+    "io.circe"              %% "circe-generic-extras"          % circeGenericExtraVersion,
+    "io.chrisdavenport"     %% "log4cats-slf4j"                % chrisDavenportLog4CatsVersion,
+    "io.circe"              %% "circe-literal"                 % circeLiteralVersion,
+    "ch.qos.logback"         % "logback-classic"               % logbackVersion
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -57,14 +59,18 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
       "com.dimafeng"      %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
       "com.dimafeng"      %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
       "org.scalacheck"    %% "scalacheck"                      % scalaCheckVersion          % "test",
-      "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheck        % "test"
+      "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test"
     ),
     applicationSettings,
     assembly / assemblyJarName := "persistenceService_2.13-0.1.jar"
   )
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
-  .settings(moduleName := "algebrasAndModel", applicationSettings)
+  .settings(
+    moduleName := "algebrasAndModel",
+    applicationSettings,
+    assembly / assemblyJarName := "algebrasAndModel_2.13-0.1.jar"
+  )
 
 lazy val subscriptionService = (project in file("modules/subscriptionService"))
   .settings(
