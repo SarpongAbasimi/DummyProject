@@ -15,6 +15,23 @@ object Routes {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 
+    def handleRequest[A <: Subscription](request: Request[F])(implicit
+        entityDecoder: EntityDecoder[F, A],
+        entityEncoder: EntityEncoder[F, A]
+    ): F[Response[F]] = {
+      request
+        .attemptAs[A]
+        .foldF(
+          _ => BadRequest("Bad request"),
+          message =>
+            if (request.method.eq(POST)) {
+              Created(message)
+            } else {
+              NoContent()
+            }
+        )
+    }
+
     implicit val encoder: EntityEncoder[F, PostSubscriptions] =
       jsonEncoderOf[F, PostSubscriptions]
     implicit val decoder: EntityDecoder[F, PostSubscriptions] =
@@ -29,44 +46,16 @@ object Routes {
       case GET -> Root / "subscription" / user =>
         Ok(MockedResponse.mockedGetUserSubscriptionResponse)
       case req @ POST -> Root / "subscription" / user =>
-        handleRequest[F, PostSubscriptions](req, "application/json")
+        handleRequest[PostSubscriptions](req)
       case req @ DELETE -> Root / "subscription" / user =>
-        handleRequest[F, PostSubscriptions](req, "application/json")
+        handleRequest[PostSubscriptions](req)
       case req @ POST -> Root / "subscription" / "slack" / command =>
         req
-          .withHeaders(
-            Headers.of(
-              Header("Content-Type", "application/x-www-form-urlencoded")
-            )
-          )
           .attemptAs[SlackCommandRequestBody]
           .foldF(
-            error => BadRequest(s"An error occurred ${error}"),
+            _ => BadRequest(),
             _ => Accepted()
           )
     }
-  }
-
-  private def handleRequest[F[_]: Sync, A <: Subscription](
-      request: Request[F],
-      contentType: String
-  )(implicit
-      entityDecoder: EntityDecoder[F, A],
-      entityEncoder: EntityEncoder[F, A]
-  ): F[Response[F]] = {
-    val dsl = new Http4sDsl[F] {}
-    import dsl._
-    request
-      .withHeaders(Headers.of(Header("Content-Type", contentType)))
-      .attemptAs[A]
-      .foldF(
-        error => BadRequest(s"Bad request ${error}"),
-        message =>
-          if (request.method.eq(POST)) {
-            Created(message)
-          } else {
-            NoContent()
-          }
-      )
   }
 }
