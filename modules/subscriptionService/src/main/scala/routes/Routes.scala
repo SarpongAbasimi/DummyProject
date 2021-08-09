@@ -26,11 +26,11 @@ object Routes {
 
     HttpRoutes.of[F] {
       case GET -> Root => Ok("subscription service")
-      case GET -> Root / "subscription" / "user" =>
+      case GET -> Root / "subscription" / user =>
         Ok(MockedResponse.mockedGetUserSubscriptionResponse)
-      case req @ POST -> Root / "subscription" / "user" =>
+      case req @ POST -> Root / "subscription" / user =>
         handleRequest[F, PostSubscriptions](req, "application/json")
-      case req @ DELETE -> Root / "subscription" / "user" =>
+      case req @ DELETE -> Root / "subscription" / user =>
         handleRequest[F, PostSubscriptions](req, "application/json")
       case req @ POST -> Root / "subscription" / "slack" / command =>
         req
