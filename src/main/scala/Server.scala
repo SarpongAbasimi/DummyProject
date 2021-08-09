@@ -12,8 +12,7 @@ object Server {
   def stream[F[_]: Timer: ConcurrentEffect]: Stream[F, ExitCode] = {
     for {
       _ <- BlazeClientBuilder[F](global).stream
-      services = (Routes.subscription[F] <+>
-        Routes.subscription[F]).orNotFound
+      services = (Routes.subscription[F]).orNotFound
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(5000, "localhost")
         .withHttpApp(services)

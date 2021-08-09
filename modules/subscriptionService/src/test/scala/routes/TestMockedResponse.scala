@@ -42,4 +42,49 @@ object TestMockedResponse {
         """
   }
 
+  def mockedSlackCommandResponse: Json = {
+    json"""
+      {
+        "response_type":"in_channel",
+        "text":"It's 80 degrees right now.",
+        "blocks":[
+        {
+          "type":"section",
+          "text":{
+            "type":"mrkdwn",
+            "text":"*It's 80 degrees right now.*"
+          }
+        },
+        {
+          "type":"section",
+          "text":{
+            "type":"mrkdwn",
+            "text":"Partly cloudy today and tomorrow"
+          }
+        }
+        ]
+      }
+    """
+  }
+
+  def mockedSlackCommandBody: Json = {
+    json"""
+    {
+      "token" : "token",
+      "team_id" : "teamId",
+      "team_domain" : "teamDomain",
+      "enterprise_id" : "enterpriseId",
+      "enterprise_name" : "enterpriseName",
+      "channel_id" : "channelId",
+      "channel_name" : "channelName",
+      "user_id" : "userId",
+      "user_name" : "userName",
+      "command" : "command",
+      "text" : "text",
+      "response_url" : "responseUrl",
+      "trigger_id" : "triggerId",
+      "api_app_id" : "apiAppId"
+    }
+    """
+  }
 }

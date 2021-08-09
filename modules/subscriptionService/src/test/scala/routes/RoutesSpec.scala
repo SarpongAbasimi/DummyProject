@@ -8,11 +8,10 @@ import org.scalatest.matchers.should.Matchers
 import org.http4s.implicits._
 import org.http4s.circe._
 import org.http4s.dsl.io.POST
-import fs2.Stream
 
 class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
   describe("Routes") {
-    describe("getUserSubscription") {
+    describe("subscription") {
       describe("when it receives a request with a userId") {
         it("should respond with the right response data and status code") {
           {
@@ -30,7 +29,7 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
       }
     }
 
-    describe("When a post request is sent to postUserSubscription") {
+    describe("When a post request is sent to the user subscription route") {
       describe("with the wrong request body") {
         it("should return a 400 status code") {
           {
@@ -53,11 +52,27 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
             request <- IO.pure(
               Request[IO](
                 method = POST,
-                uri = Uri.uri("someEndpoint")
+                uri = Uri.uri("subscription/user")
               ).withEntity(TestMockedResponse.mockedPostUserSubscriptionResponse)
             )
             response <- Routes.subscription[IO].orNotFound(request)
           } yield response).asserting(_.status.code shouldBe (201))
+        }
+      }
+    }
+
+    describe("when a post request is sent to the subscription route") {
+      describe("with a slack command") {
+        it("should return the right response") {
+          (for {
+            request <- IO.pure(
+              Request[IO](
+                method = POST,
+                uri = Uri.uri("subscription/slack/weather")
+              ).withEntity(TestMockedResponse.mockedSlackCommandBody)
+            )
+            response <- Routes.subscription[IO].orNotFound(request)
+          } yield response).asserting(_.status.code shouldBe (202))
         }
       }
     }
