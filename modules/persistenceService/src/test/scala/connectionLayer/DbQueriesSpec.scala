@@ -8,7 +8,7 @@ import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord, User => DbUser}
 import migrations.DbMigrations
 import org.scalatest.Outcome
-import persistenceModel.{Id, Name, User, UserName}
+import persistenceModel.{Id, SlackChannelId, SlackUserId, User}
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.global
@@ -47,10 +47,10 @@ class DbQueriesSpec
     describe("insert") {
       describe("when called") {
         ignore("should be able to insert a resource in the db") {
-          val id        = Id(UUID.randomUUID())
-          val name      = Name("sarps")
-          val userName  = UserName("Ben")
-          val dummyUser = User(id, name, userName)
+          val id             = Id(UUID.randomUUID())
+          val slackId        = SlackUserId(UUID.randomUUID())
+          val slackChannelId = SlackChannelId(UUID.randomUUID())
+          val dummyUser      = User(id, slackId, slackChannelId)
 
           check[Update0](DbQueries.insert(dummyUser))
         }
@@ -60,9 +60,12 @@ class DbQueriesSpec
     describe("find") {
       describe("when called") {
         ignore("should be able to find a resource in the db") {
-          val userName = UserName("Ben")
+          val id             = Id(UUID.randomUUID())
+          val slackId        = SlackUserId(UUID.randomUUID())
+          val slackChannelId = SlackChannelId(UUID.randomUUID())
+          val dummyUser      = User(id, slackId, slackChannelId)
 
-          check(DbQueries.find(userName))
+          check(DbQueries.find(dummyUser))
         }
       }
     }
@@ -70,9 +73,12 @@ class DbQueriesSpec
     describe("remove") {
       describe("when called") {
         ignore("should be able to remove a resource from the db") {
-          val userName = UserName("Ben")
+          val id             = Id(UUID.randomUUID())
+          val slackId        = SlackUserId(UUID.randomUUID())
+          val slackChannelId = SlackChannelId(UUID.randomUUID())
+          val dummyUser      = User(id, slackId, slackChannelId)
 
-          check[Update0](DbQueries.remove(userName))
+          check[Update0](DbQueries.remove(dummyUser))
         }
       }
     }

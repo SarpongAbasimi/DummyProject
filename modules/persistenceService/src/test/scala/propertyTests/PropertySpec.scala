@@ -8,12 +8,11 @@ import migrations.DbMigrations
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatestplus.scalacheck._
 import org.scalatest.matchers.should.Matchers
-import persistenceModel.{Id, Name, User, UserName}
+import persistenceModel.{Id, SlackChannelId, SlackUserId, User}
 import config.{User => ConfigUser}
 import java.util.UUID
 import doobie.implicits._
-import org.scalacheck.{Arbitrary, Gen}
-import org.scalatest.{BeforeAndAfter}
+import org.scalatest.BeforeAndAfter
 
 class PropertySpec
     extends AsyncFreeSpec
@@ -37,17 +36,16 @@ class PropertySpec
       .unsafeRunSync()
   }
 
-  implicit val nameArb: Arbitrary[Name]         = Arbitrary(Gen.identifier.map(Name(_)))
-  implicit val userNameArb: Arbitrary[UserName] = Arbitrary(Gen.identifier.map(UserName(_)))
-
   "Migration" - {
 
     "after creating user table" - {
-      "should allows user to be inserted into userdb" ignore {
+      "should allows user to be inserted into userdb" in {
 
-        forAll { (id: UUID, name: Name, userName: UserName) =>
-          val theUserID = Id(id)
-          val theUser   = User(theUserID, name, userName)
+        forAll { (id: UUID, slackUserId: UUID, slackChannelId: UUID) =>
+          val theUserID         = Id(id)
+          val theSlackUserId    = SlackUserId(slackUserId)
+          val theSlackChannelId = SlackChannelId(slackChannelId)
+          val theUser           = User(theUserID, theSlackUserId, theSlackChannelId)
 
           val result: IO[Option[User]] = for {
             _ <- IO(println("Starting Migrations..."))
@@ -56,7 +54,7 @@ class PropertySpec
               ApplicationConfig(driverName, connectionUrl, user, password)
             )
             _         <- dbQueries.insert(theUser).transact(dbConnection.connection)
-            foundUser <- dbQueries.find(theUser.userName).transact(dbConnection.connection)
+            foundUser <- dbQueries.find(theUser).transact(dbConnection.connection)
           } yield foundUser
 
           result.asserting(e => e shouldBe (Some(theUser))).unsafeRunSync()
@@ -64,11 +62,13 @@ class PropertySpec
         }
       }
 
-      "should allows user to be deleted from the userdb" ignore {
+      "should allows user to be deleted from the userdb" in {
 
-        forAll { (id: UUID, name: Name, userName: UserName) =>
-          val theUserID = Id(id)
-          val theUser   = User(theUserID, name, userName)
+        forAll { (id: UUID, slackUserId: UUID, slackChannelId: UUID) =>
+          val theUserID         = Id(id)
+          val theSlackUserId    = SlackUserId(slackUserId)
+          val theSlackChannelId = SlackChannelId(slackChannelId)
+          val theUser           = User(theUserID, theSlackUserId, theSlackChannelId)
 
           val result: IO[Option[User]] = for {
             _ <- IO(println("Starting Migrations..."))
@@ -77,8 +77,8 @@ class PropertySpec
               ApplicationConfig(driverName, connectionUrl, user, password)
             )
             _         <- dbQueries.insert(theUser).transact(dbConnection.connection)
-            _         <- dbQueries.remove(theUser.userName).transact(dbConnection.connection)
-            foundUser <- dbQueries.find(theUser.userName).transact(dbConnection.connection)
+            _         <- dbQueries.remove(theUser).transact(dbConnection.connection)
+            foundUser <- dbQueries.find(theUser).transact(dbConnection.connection)
           } yield foundUser
 
           result.asserting(e => e shouldBe None).unsafeRunSync()
