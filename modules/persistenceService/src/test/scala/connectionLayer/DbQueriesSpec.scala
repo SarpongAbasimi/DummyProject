@@ -46,7 +46,7 @@ class DbQueriesSpec
   describe("Queries") {
     describe("insert") {
       describe("when called") {
-        it("should be able to insert a resource in the db") {
+        ignore("should be able to insert a resource in the db") {
           val id        = Id(UUID.randomUUID())
           val name      = Name("sarps")
           val userName  = UserName("Ben")
@@ -59,7 +59,7 @@ class DbQueriesSpec
 
     describe("find") {
       describe("when called") {
-        it("should be able to find a resource in the db") {
+        ignore("should be able to find a resource in the db") {
           val userName = UserName("Ben")
 
           check(DbQueries.find(userName))
@@ -69,7 +69,7 @@ class DbQueriesSpec
 
     describe("remove") {
       describe("when called") {
-        it("should be able to remove a resource from the db") {
+        ignore("should be able to remove a resource from the db") {
           val userName = UserName("Ben")
 
           check[Update0](DbQueries.remove(userName))

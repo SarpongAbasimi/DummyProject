@@ -43,7 +43,7 @@ class PropertySpec
   "Migration" - {
 
     "after creating user table" - {
-      "should allows user to be inserted into userdb" in {
+      "should allows user to be inserted into userdb" ignore {
 
         forAll { (id: UUID, name: Name, userName: UserName) =>
           val theUserID = Id(id)
@@ -64,7 +64,7 @@ class PropertySpec
         }
       }
 
-      "should allows user to be deleted from the userdb" in {
+      "should allows user to be deleted from the userdb" ignore {
 
         forAll { (id: UUID, name: Name, userName: UserName) =>
           val theUserID = Id(id)
