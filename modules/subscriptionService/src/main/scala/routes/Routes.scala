@@ -2,7 +2,7 @@ package routes
 
 import cats.effect.Sync
 import mockedSubscriptionResponse.MockedResponse
-import org.http4s.{EntityDecoder, EntityEncoder, Header, Headers, HttpRoutes, Request, Response}
+import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes, Request, Response}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
 import utils.Types.{PostSubscriptions, SlackCommandRequestBody}

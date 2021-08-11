@@ -1,10 +1,10 @@
 package persistenceAlgebra
 
-import persistenceModel.{User, UserName}
+import persistenceModel.{Id, User}
 import doobie._
 
 trait DbAlgebra {
   def insert(user: User): ConnectionIO[Int]
-  def find(username: UserName): ConnectionIO[Option[User]]
-  def remove(user: UserName): ConnectionIO[Int]
+  def find(id: Id): ConnectionIO[Option[User]]
+  def remove(id: Id): ConnectionIO[Int]
 }

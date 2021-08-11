@@ -61,30 +61,43 @@ object Types {
   }
   final case class Repository(repository: String) extends AnyVal
   object Repository {
-    implicit val repositoryDecoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
-    implicit val repositoryEncoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+    implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
+    implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
   }
+
   final case class SubscribeAt(subscribeAt: String) extends AnyVal
-  final case class Commit(sha: Sha, url: Url)
+  object SubscribeAt {
+    implicit val decoder: Decoder[SubscribeAt] = deriveUnwrappedDecoder[SubscribeAt]
+    implicit val encoder: Encoder[SubscribeAt] = deriveUnwrappedEncoder[SubscribeAt]
+  }
+
+  final case class Commit(
+      sha: Sha,
+      url: Url
+  )
+
   final case class GetSubscriptionData(
       organization: Organization,
       repository: Repository,
       subscribeAt: SubscribeAt
   )
-  final case class PostSubscriptionData(organization: Organization, repository: Repository)
+
+  final case class PostSubscriptionData(
+      organization: Organization,
+      repository: Repository
+  )
   object PostSubscriptionData {
     implicit val postSubscriptionsDataDecoder: Decoder[PostSubscriptionData] =
       deriveDecoder[PostSubscriptionData]
     implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
       deriveEncoder[PostSubscriptionData]
   }
-  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData]) extends Subscription
-
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])   extends Subscription
   final case class PostSubscriptions(subscriptions: List[PostSubscriptionData]) extends Subscription
   object PostSubscriptions {
-    implicit val postSubscriptionsDecoder: Decoder[PostSubscriptions] =
+    implicit val decoder: Decoder[PostSubscriptions] =
       deriveDecoder[PostSubscriptions]
-    implicit val postSubscriptionsEncoder: Encoder[PostSubscriptions] =
+    implicit val encoder: Encoder[PostSubscriptions] =
       deriveEncoder[PostSubscriptions]
   }
 
