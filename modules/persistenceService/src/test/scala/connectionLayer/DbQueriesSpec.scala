@@ -48,7 +48,7 @@ class DbQueriesSpec
       describe("when called") {
         ignore("should be able to insert a resource in the db") {
           val id             = Id(UUID.randomUUID())
-          val slackId        = SlackUserId(UUID.randomUUID())
+          val slackId        = SlackUserId(UUID.randomUUID().toString)
           val slackChannelId = SlackChannelId(UUID.randomUUID())
           val dummyUser      = User(id, slackId, slackChannelId)
 
@@ -60,12 +60,9 @@ class DbQueriesSpec
     describe("find") {
       describe("when called") {
         ignore("should be able to find a resource in the db") {
-          val id             = Id(UUID.randomUUID())
-          val slackId        = SlackUserId(UUID.randomUUID())
-          val slackChannelId = SlackChannelId(UUID.randomUUID())
-          val dummyUser      = User(id, slackId, slackChannelId)
+          val id = Id(UUID.randomUUID())
 
-          check(DbQueries.find(dummyUser))
+          check(DbQueries.find(id))
         }
       }
     }
@@ -73,12 +70,9 @@ class DbQueriesSpec
     describe("remove") {
       describe("when called") {
         ignore("should be able to remove a resource from the db") {
-          val id             = Id(UUID.randomUUID())
-          val slackId        = SlackUserId(UUID.randomUUID())
-          val slackChannelId = SlackChannelId(UUID.randomUUID())
-          val dummyUser      = User(id, slackId, slackChannelId)
+          val id = Id(UUID.randomUUID())
 
-          check[Update0](DbQueries.remove(dummyUser))
+          check[Update0](DbQueries.remove(id))
         }
       }
     }
