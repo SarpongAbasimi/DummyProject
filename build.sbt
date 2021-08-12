@@ -64,6 +64,9 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
     applicationSettings,
     assembly / assemblyJarName := "persistenceService_2.13-0.1.jar"
   )
+  .dependsOn(
+    algebrasAndModel
+  )
 
 lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
   .settings(
@@ -74,7 +77,7 @@ lazy val algebrasAndModel = (project in file("modules/algebrasAndModel"))
 
 lazy val subscriptionService = (project in file("modules/subscriptionService"))
   .settings(
-    moduleName := "subscriptionService",
+    moduleName := "subscriptionServiceAlgebra",
     applicationSettings,
     assembly / assemblyJarName := "subscriptionService-assembly-0.1.jar"
   )

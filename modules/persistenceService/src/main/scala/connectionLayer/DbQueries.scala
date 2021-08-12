@@ -1,18 +1,20 @@
 package connectionLayer
 
-import persistenceAlgebra.DbAlgebra
-import persistenceModel.{Id, User}
+import UserDbAlgebra.UserAlgebra
+import utils.Types.{User}
 import doobie._
 import doobie.implicits._
-import cats.effect.Bracket
+import utils.Types.Id
 import doobie.postgres.implicits._
 
-class DbQueries[F[_]](implicit ev: Bracket[F, Throwable]) extends DbAlgebra {
-  def insert(user: User): ConnectionIO[Int] = DbQueries.insert(user).run
+object UserAlgebra {
+  def userAlgebraImplementation: UserAlgebra[doobie.ConnectionIO] = new UserAlgebra[ConnectionIO] {
+    def insertUser(user: User): ConnectionIO[Int] = DbQueries.insert(user).run
 
-  def find(id: Id): ConnectionIO[Option[User]] = DbQueries.find(id).option
+    def findUser(id: Id): ConnectionIO[Option[User]] = DbQueries.find(id).option
 
-  def remove(id: Id): ConnectionIO[Int] = DbQueries.remove(id).run
+    def deleteUser(id: Id): ConnectionIO[Int] = DbQueries.remove(id).run
+  }
 }
 
 object DbQueries {
