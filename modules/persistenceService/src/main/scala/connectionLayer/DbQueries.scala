@@ -1,6 +1,6 @@
 package connectionLayer
 
-import UserDbAlgebra.UserAlgebra
+import userDbAlgebra.UserAlgebra
 import utils.Types.{User}
 import doobie._
 import doobie.implicits._

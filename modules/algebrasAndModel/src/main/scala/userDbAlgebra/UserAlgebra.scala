@@ -1,4 +1,4 @@
-package UserDbAlgebra
+package userDbAlgebra
 
 import utils.Types.{Id, User}
 
