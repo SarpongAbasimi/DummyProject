@@ -3,18 +3,19 @@ import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord}
-import connectionLayer.{DbConnection, DbQueries}
+import connectionLayer.{DbConnection, UserAlgebra}
 import migrations.DbMigrations
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatestplus.scalacheck._
 import org.scalatest.matchers.should.Matchers
-import persistenceModel.{Id, SlackChannelId, SlackUserId, User}
+import utils.Types.User
 import config.{User => ConfigUser}
-
 import java.util.UUID
 import doobie.implicits._
 import org.scalacheck.{Arbitrary, Gen}
 import org.scalatest.BeforeAndAfter
+import utils.Types.{Id, SlackChannelId, SlackUserId}
+import UserAlgebra._
 
 class PropertySpec
     extends AsyncFreeSpec
@@ -53,12 +54,13 @@ class PropertySpec
 
           val result: IO[Option[User]] = for {
             _ <- IO(println("Starting Migrations..."))
-            dbQueries = new DbQueries[IO]
             dbConnection = new DbConnection[IO](
               ApplicationConfig(driverName, connectionUrl, user, password)
             )
-            _         <- dbQueries.insert(theUser).transact(dbConnection.connection)
-            foundUser <- dbQueries.find(theUser.id).transact(dbConnection.connection)
+            _ <- userAlgebraImplementation.insertUser(theUser).transact(dbConnection.connection)
+            foundUser <- userAlgebraImplementation
+              .findUser(theUser.id)
+              .transact(dbConnection.connection)
           } yield foundUser
 
           result.asserting(e => e shouldBe (Some(theUser))).unsafeRunSync()
@@ -78,13 +80,16 @@ class PropertySpec
 
           val result: IO[Option[User]] = for {
             _ <- IO(println("Starting Migrations..."))
-            dbQueries = new DbQueries[IO]
             dbConnection = new DbConnection[IO](
               ApplicationConfig(driverName, connectionUrl, user, password)
             )
-            _         <- dbQueries.insert(theUser).transact(dbConnection.connection)
-            _         <- dbQueries.remove(theUser.id).transact(dbConnection.connection)
-            foundUser <- dbQueries.find(theUser.id).transact(dbConnection.connection)
+            _ <- userAlgebraImplementation.insertUser(theUser).transact(dbConnection.connection)
+            _ <- userAlgebraImplementation
+              .deleteUser(theUser.id)
+              .transact(dbConnection.connection)
+            foundUser <- userAlgebraImplementation
+              .findUser(theUser.id)
+              .transact(dbConnection.connection)
           } yield foundUser
 
           result.asserting(e => e shouldBe None).unsafeRunSync()

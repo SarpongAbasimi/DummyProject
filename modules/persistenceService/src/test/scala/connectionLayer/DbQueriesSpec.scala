@@ -8,7 +8,8 @@ import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord, User => DbUser}
 import migrations.DbMigrations
 import org.scalatest.Outcome
-import persistenceModel.{Id, SlackChannelId, SlackUserId, User}
+import utils.Types.User
+import utils.Types.{Id, SlackChannelId, SlackUserId}
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.global

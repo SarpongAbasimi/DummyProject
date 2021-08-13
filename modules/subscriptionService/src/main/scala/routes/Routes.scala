@@ -42,7 +42,6 @@ object Routes {
       jsonOf[F, SlackCommandRequestBody]
 
     HttpRoutes.of[F] {
-      case GET -> Root => Ok("subscription service")
       case GET -> Root / "subscription" / user =>
         Ok(MockedResponse.mockedGetUserSubscriptionResponse)
       case req @ POST -> Root / "subscription" / user =>
