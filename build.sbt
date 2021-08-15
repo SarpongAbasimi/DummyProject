@@ -29,7 +29,9 @@ lazy val applicationSettings = Seq(
     "io.circe"              %% "circe-generic-extras"          % circeGenericExtraVersion,
     "io.chrisdavenport"     %% "log4cats-slf4j"                % chrisDavenportLog4CatsVersion,
     "io.circe"              %% "circe-literal"                 % circeLiteralVersion,
-    "ch.qos.logback"         % "logback-classic"               % logbackVersion
+    "ch.qos.logback"         % "logback-classic"               % logbackVersion,
+    "org.tpolecat"          %% "doobie-core"                   % doobieVersion,
+    "org.tpolecat"          %% "doobie-postgres"               % doobieVersion
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -53,8 +55,6 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
     moduleName := "persistenceService",
     Test / fork := true,
     libraryDependencies ++= Seq(
-      "org.tpolecat"      %% "doobie-core"                     % doobieVersion,
-      "org.tpolecat"      %% "doobie-postgres"                 % doobieVersion,
       "org.tpolecat"      %% "doobie-specs2"                   % doobieVersion,
       "com.dimafeng"      %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
       "com.dimafeng"      %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",

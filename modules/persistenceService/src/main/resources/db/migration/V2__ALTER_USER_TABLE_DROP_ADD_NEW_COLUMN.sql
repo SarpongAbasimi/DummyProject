@@ -12,9 +12,9 @@ CREATE TABLE repositories(
 );
 
 CREATE TABLE subscriptions(
-    id uuid NOT NULL,
+    user_id uuid NOT NULL,
     repository_id uuid NOT NULL,
-    PRIMARY KEY(id, repository_id),
-    FOREIGN KEY (id) REFERENCES userdb(id) ON UPDATE CASCADE,
+    PRIMARY KEY(user_id, repository_id),
+    FOREIGN KEY (user_id) REFERENCES userdb(id) ON UPDATE CASCADE,
     FOREIGN KEY (repository_id) REFERENCES repositories(repository_id) ON UPDATE CASCADE
 );

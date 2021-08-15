@@ -25,12 +25,21 @@ object Types {
       slackUserId: SlackUserId,
       slackChannelId: SlackChannelId
   )
-  final case class Organization(organization: String) extends AnyVal
-  object Organization {
-    implicit val organizationEncoder: Encoder[Organization] = deriveUnwrappedEncoder[Organization]
-    implicit val organizationDecoder: Decoder[Organization] = deriveUnwrappedDecoder[Organization]
+
+  final case class Owner(owner: String) extends AnyVal
+  object Owner {
+    implicit val encoder: Encoder[Owner] = deriveUnwrappedEncoder[Owner]
+    implicit val decoder: Decoder[Owner] = deriveUnwrappedDecoder[Owner]
   }
-  final case class Repository(repository: String) extends AnyVal
+
+  final case class Repository(repository: String)     extends AnyVal
+  final case class RepositoryId(repositoryId: String) extends AnyVal
+
+  object RepositoryId {
+    implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
+    implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+  }
+
   object Repository {
     implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
@@ -43,13 +52,13 @@ object Types {
   }
 
   final case class GetSubscriptionData(
-      organization: Organization,
+      owner: Owner,
       repository: Repository,
       subscribeAt: SubscribeAt
   )
 
   final case class PostSubscriptionData(
-      organization: Organization,
+      organization: Owner,
       repository: Repository
   )
   object PostSubscriptionData {
