@@ -9,7 +9,7 @@ import doobie.util.update.Update
 import doobie.postgres.implicits._
 
 object SubscriptionServicePersistenceLayer {
-  def subscriptionServiceAlgImp: SubscriptionServiceAlgebra[ConnectionIO] =
+  val subscriptionServiceAlgImp: SubscriptionServiceAlgebra[ConnectionIO] =
     new SubscriptionServiceAlgebra[ConnectionIO] {
       def get(id: Id): ConnectionIO[Option[GetSubscriptionData]] =
         SubscriptionServiceQuery.get(id).option

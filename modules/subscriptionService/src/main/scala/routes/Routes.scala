@@ -7,11 +7,14 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
 import utils.Types.{PostSubscriptions, SlackCommandRequestBody}
 import utils.Subscription
+import subscriptionAlgebra.SubscriptionServiceAlgebra
 import cats.implicits._
 
 object Routes {
 
-  def subscription[F[_]: Sync]: HttpRoutes[F] = {
+  def subscription[F[_]: Sync](
+      subscriptionService: SubscriptionServiceAlgebra[F]
+  ): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
 

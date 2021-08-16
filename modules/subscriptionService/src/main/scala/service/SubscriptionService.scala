@@ -8,6 +8,9 @@ import doobie.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 
+sealed trait UserErrors                  extends Exception
+case class UserNotFound(message: String) extends UserErrors
+
 object SubscriptionService {
   def implementation[F[_]: Sync](
       userAlgebra: UserAlgebra[ConnectionIO],
@@ -17,15 +20,11 @@ object SubscriptionService {
     def get(id: Id): F[Option[GetSubscriptionData]] = {
       for {
         user <- userAlgebra.findUser(id)
-        listOfSubscriptions <- user match {
-          case None =>
-            Sync[ConnectionIO]
-              .raiseError(
-                new Exception("user does not exit")
-              )
+        optionOfGetSubscription <- user match {
+          case None       => Sync[ConnectionIO].raiseError(UserNotFound("User does not Exit"))
           case Some(user) => subscriptionAlgebra.get(user.id)
         }
-      } yield listOfSubscriptions
+      } yield optionOfGetSubscription: Option[GetSubscriptionData]
     }.transact(transactor)
 
     def post(id: Id, subscriptions: PostSubscriptions): F[Unit] = (for {
@@ -47,7 +46,7 @@ object SubscriptionService {
       _ <- user match {
         case None =>
           Sync[ConnectionIO].raiseError(new Exception(s"Invalid: User with ${id.id} does not exit"))
-        case Some(user) => subscriptionAlgebra.delete(id, subscriptions)
+        case Some(user) => subscriptionAlgebra.delete(user.id, subscriptions)
       }
     } yield ()).transact(transactor)
   }

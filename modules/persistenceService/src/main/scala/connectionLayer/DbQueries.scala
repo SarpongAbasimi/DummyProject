@@ -8,7 +8,7 @@ import utils.Types.Id
 import doobie.postgres.implicits._
 
 object UserAlgebra {
-  def userAlgebraImplementation: UserAlgebra[doobie.ConnectionIO] = new UserAlgebra[ConnectionIO] {
+  def userAlgebraImplementation: UserAlgebra[ConnectionIO] = new UserAlgebra[ConnectionIO] {
     def insertUser(user: User): ConnectionIO[Int] = DbQueries.insert(user).run
 
     def findUser(id: Id): ConnectionIO[Option[User]] = DbQueries.find(id).option

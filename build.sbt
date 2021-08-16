@@ -18,20 +18,25 @@ lazy val applicationSettings = Seq(
   version := "0.1",
   scalaVersion := "2.13.5",
   libraryDependencies ++= Seq(
-    "org.http4s"            %% "http4s-dsl"                    % http4sVersion,
-    "org.http4s"            %% "http4s-blaze-server"           % http4sVersion,
-    "org.http4s"            %% "http4s-blaze-client"           % http4sVersion,
-    "org.http4s"            %% "http4s-circe"                  % http4sVersion,
-    "com.github.pureconfig" %% "pureconfig"                    % pureConfigVersion,
-    "org.tpolecat"          %% "doobie-scalatest"              % doobieVersion          % Test,
-    "com.codecommit"        %% "cats-effect-testing-scalatest" % catsEffectTestVersions % Test,
-    "org.http4s"            %% "http4s-prometheus-metrics"     % http4sVersion,
-    "io.circe"              %% "circe-generic-extras"          % circeGenericExtraVersion,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                % chrisDavenportLog4CatsVersion,
-    "io.circe"              %% "circe-literal"                 % circeLiteralVersion,
-    "ch.qos.logback"         % "logback-classic"               % logbackVersion,
-    "org.tpolecat"          %% "doobie-core"                   % doobieVersion,
-    "org.tpolecat"          %% "doobie-postgres"               % doobieVersion
+    "org.http4s"            %% "http4s-dsl"                      % http4sVersion,
+    "org.http4s"            %% "http4s-blaze-server"             % http4sVersion,
+    "org.http4s"            %% "http4s-blaze-client"             % http4sVersion,
+    "org.http4s"            %% "http4s-circe"                    % http4sVersion,
+    "com.github.pureconfig" %% "pureconfig"                      % pureConfigVersion,
+    "org.tpolecat"          %% "doobie-scalatest"                % doobieVersion              % Test,
+    "com.codecommit"        %% "cats-effect-testing-scalatest"   % catsEffectTestVersions     % Test,
+    "org.http4s"            %% "http4s-prometheus-metrics"       % http4sVersion,
+    "io.circe"              %% "circe-generic-extras"            % circeGenericExtraVersion,
+    "io.chrisdavenport"     %% "log4cats-slf4j"                  % chrisDavenportLog4CatsVersion,
+    "io.circe"              %% "circe-literal"                   % circeLiteralVersion,
+    "ch.qos.logback"         % "logback-classic"                 % logbackVersion,
+    "org.tpolecat"          %% "doobie-core"                     % doobieVersion,
+    "org.tpolecat"          %% "doobie-postgres"                 % doobieVersion,
+    "org.tpolecat"          %% "doobie-specs2"                   % doobieVersion,
+    "com.dimafeng"          %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
+    "com.dimafeng"          %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
+    "org.scalacheck"        %% "scalacheck"                      % scalaCheckVersion          % "test",
+    "org.scalatestplus"     %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test"
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -54,13 +59,6 @@ lazy val persistenceService = (project in file("modules/persistenceService"))
   .settings(
     moduleName := "persistenceService",
     Test / fork := true,
-    libraryDependencies ++= Seq(
-      "org.tpolecat"      %% "doobie-specs2"                   % doobieVersion,
-      "com.dimafeng"      %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
-      "com.dimafeng"      %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
-      "org.scalacheck"    %% "scalacheck"                      % scalaCheckVersion          % "test",
-      "org.scalatestplus" %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test"
-    ),
     applicationSettings,
     assembly / assemblyJarName := "persistenceService_2.13-0.1.jar"
   )
@@ -82,7 +80,8 @@ lazy val subscriptionService = (project in file("modules/subscriptionService"))
     assembly / assemblyJarName := "subscriptionService-assembly-0.1.jar"
   )
   .dependsOn(
-    algebrasAndModel
+    algebrasAndModel,
+    persistenceService
   )
 
 lazy val root = (project in file("."))

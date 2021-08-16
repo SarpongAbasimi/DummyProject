@@ -1,15 +1,37 @@
 package routes
 import cats.effect.{IO}
 import cats.effect.testing.scalatest.AsyncIOSpec
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import connectionLayer.UserAlgebra
+import doobie.util.transactor.Transactor
 import io.circe.Json
 import org.http4s.{Request, Uri}
 import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.should.Matchers
-import org.http4s.implicits._
 import org.http4s.circe._
 import org.http4s.dsl.io.POST
+import org.http4s.implicits._
+import service.SubscriptionService
+import subsPersistenceLayer.SubscriptionServicePersistenceLayer
+import subscriptionAlgebra.SubscriptionServiceAlgebra
 
-class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
+class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers with ForAllTestContainer {
+
+  override lazy val container: PostgreSQLContainer = PostgreSQLContainer()
+
+  lazy val subscriptionService: SubscriptionServiceAlgebra[IO] = (for {
+    xa <- IO.pure(
+      Transactor.fromDriverManager[IO](
+        container.driverClassName,
+        container.jdbcUrl,
+        container.username,
+        container.password
+      )
+    )
+    user         <- IO.pure(UserAlgebra.userAlgebraImplementation)
+    subscription <- IO.pure(SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp)
+  } yield SubscriptionService.implementation[IO](user, subscription, xa)).unsafeRunSync()
+
   describe("Routes") {
     describe("subscription") {
       describe("when it receives a request with a userId") {
@@ -17,7 +39,7 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
           {
             for {
               request  <- IO.pure(Request[IO](uri = Uri.uri("subscription/user")))
-              response <- Routes.subscription[IO].orNotFound(request)
+              response <- Routes.subscription[IO](subscriptionService).orNotFound(request)
             } yield response
           }.asserting { result =>
             result.status.code shouldBe (200)
@@ -40,7 +62,7 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
                   uri = Uri.uri("subscription/user")
                 )
               )
-              response <- Routes.subscription[IO].orNotFound(request)
+              response <- Routes.subscription[IO](subscriptionService).orNotFound(request)
             } yield response
           }.asserting(_.status.code shouldBe (400))
         }
@@ -55,7 +77,7 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
                 uri = Uri.uri("subscription/user")
               ).withEntity(TestMockedResponse.mockedPostUserSubscriptionResponse)
             )
-            response <- Routes.subscription[IO].orNotFound(request)
+            response <- Routes.subscription[IO](subscriptionService).orNotFound(request)
           } yield response).asserting(_.status.code shouldBe (201))
         }
       }
@@ -71,7 +93,7 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers {
                 uri = Uri.uri("subscription/slack/weather")
               ).withEntity(TestMockedResponse.mockedSlackCommandBody)
             )
-            response <- Routes.subscription[IO].orNotFound(request)
+            response <- Routes.subscription[IO](subscriptionService).orNotFound(request)
           } yield response).asserting(_.status.code shouldBe (202))
         }
       }
