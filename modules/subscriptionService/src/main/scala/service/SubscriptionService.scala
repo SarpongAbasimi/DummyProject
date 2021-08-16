@@ -21,7 +21,10 @@ object SubscriptionService {
       for {
         user <- userAlgebra.findUser(id)
         optionOfGetSubscription <- user match {
-          case None       => Sync[ConnectionIO].raiseError(UserNotFound("User does not Exit"))
+          case None =>
+            Sync[ConnectionIO].raiseError(
+              UserNotFound("User does not Exit")
+            )
           case Some(user) => subscriptionAlgebra.get(user.id)
         }
       } yield optionOfGetSubscription: Option[GetSubscriptionData]
@@ -31,12 +34,9 @@ object SubscriptionService {
       checkIfTheUserExits <- userAlgebra.findUser(id)
       _ <- checkIfTheUserExits match {
         case None =>
-          Sync[ConnectionIO]
-            .raiseError(
-              new Exception(
-                s"Invalid: User with ${id.id} does not exit"
-              )
-            )
+          Sync[ConnectionIO].raiseError(
+            UserNotFound(s"Invalid: User with ${id.id} does not exit")
+          )
         case Some(user) => subscriptionAlgebra.post(user.id, subscriptions)
       }
     } yield ()).transact(transactor)
@@ -45,7 +45,9 @@ object SubscriptionService {
       user <- userAlgebra.findUser(id)
       _ <- user match {
         case None =>
-          Sync[ConnectionIO].raiseError(new Exception(s"Invalid: User with ${id.id} does not exit"))
+          Sync[ConnectionIO].raiseError(
+            UserNotFound(s"Invalid: User with ${id.id} does not exit")
+          )
         case Some(user) => subscriptionAlgebra.delete(user.id, subscriptions)
       }
     } yield ()).transact(transactor)

@@ -8,7 +8,6 @@ import org.http4s.circe._
 import utils.Types.{PostSubscriptions, SlackCommandRequestBody}
 import utils.Subscription
 import subscriptionAlgebra.SubscriptionServiceAlgebra
-import cats.implicits._
 
 object Routes {
 
@@ -45,6 +44,7 @@ object Routes {
       jsonOf[F, SlackCommandRequestBody]
 
     HttpRoutes.of[F] {
+      /** Just figured that gets needs to take in a slack Id instead of an Id** */
       case GET -> Root / "subscription" / user =>
         Ok(MockedResponse.mockedGetUserSubscriptionResponse)
       case req @ POST -> Root / "subscription" / user =>
