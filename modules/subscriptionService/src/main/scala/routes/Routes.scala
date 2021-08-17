@@ -5,14 +5,14 @@ import mockedSubscriptionResponse.MockedResponse
 import org.http4s.{EntityDecoder, EntityEncoder, HttpRoutes, Request, Response}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
-import utils.Types.{PostSubscriptions, SlackCommandRequestBody}
+import utils.Types.{PostSubscriptions, SlackCommandRequestBody, SlackUserId}
 import utils.Subscription
-import subscriptionAlgebra.SubscriptionServiceAlgebra
+import subscriptionAlgebra.{SubscriptionAlgebra}
 
 object Routes {
 
   def subscription[F[_]: Sync](
-      subscriptionService: SubscriptionServiceAlgebra[F]
+      subscriptionAlgebra: SubscriptionAlgebra[F]
   ): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
@@ -46,6 +46,7 @@ object Routes {
     HttpRoutes.of[F] {
       /** Just figured that gets needs to take in a slack Id instead of an Id** */
       case GET -> Root / "subscription" / user =>
+        subscriptionAlgebra.getUserSubscriptions(SlackUserId(user))
         Ok(MockedResponse.mockedGetUserSubscriptionResponse)
       case req @ POST -> Root / "subscription" / user =>
         handleRequest[PostSubscriptions](req)

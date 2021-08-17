@@ -59,7 +59,7 @@ class PropertySpec
             )
             _ <- userAlgebraImplementation.insertUser(theUser).transact(dbConnection.connection)
             foundUser <- userAlgebraImplementation
-              .findUser(theUser.id)
+              .findUser(theUser.slackUserId)
               .transact(dbConnection.connection)
           } yield foundUser
 
@@ -88,7 +88,7 @@ class PropertySpec
               .deleteUser(theUser.id)
               .transact(dbConnection.connection)
             foundUser <- userAlgebraImplementation
-              .findUser(theUser.id)
+              .findUser(theUser.slackUserId)
               .transact(dbConnection.connection)
           } yield foundUser
 

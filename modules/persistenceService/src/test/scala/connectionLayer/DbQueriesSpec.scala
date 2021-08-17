@@ -42,9 +42,9 @@ class DbQueriesSpec extends BaseSpec {
     describe("find") {
       describe("when called") {
         it("should be able to find a resource in the db") {
-          val id = Id(UUID.randomUUID())
+          val slackUserId = SlackUserId(UUID.randomUUID().toString)
 
-          check(DbQueries.find(id))
+          check(DbQueries.find(slackUserId))
         }
       }
     }

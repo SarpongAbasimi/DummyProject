@@ -1,5 +1,5 @@
 package routes
-import cats.effect.{IO}
+import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import connectionLayer.UserAlgebra
@@ -13,13 +13,13 @@ import org.http4s.dsl.io.POST
 import org.http4s.implicits._
 import service.SubscriptionService
 import subsPersistenceLayer.SubscriptionServicePersistenceLayer
-import subscriptionAlgebra.SubscriptionServiceAlgebra
+import subscriptionAlgebra.{SubscriptionAlgebra}
 
 class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers with ForAllTestContainer {
 
   override lazy val container: PostgreSQLContainer = PostgreSQLContainer()
 
-  lazy val subscriptionService: SubscriptionServiceAlgebra[IO] = (for {
+  lazy val subscriptionService: SubscriptionAlgebra[IO] = (for {
     xa <- IO.pure(
       Transactor.fromDriverManager[IO](
         container.driverClassName,
