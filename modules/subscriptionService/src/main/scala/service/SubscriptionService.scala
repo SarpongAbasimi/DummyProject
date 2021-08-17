@@ -18,39 +18,32 @@ object SubscriptionService {
   ): SubscriptionAlgebra[F] = new SubscriptionAlgebra[F] {
     def getUserSubscriptions(slackUserId: SlackUserId): F[List[GetSubscriptionData]] = {
       for {
-        user <- userAlgebra.findUser(slackUserId)
-        optionOfGetSubscription <- user match {
-          case None =>
-            UserNotFound("User does not Exit").raiseError[ConnectionIO, List[GetSubscriptionData]]
-          case Some(user) => subscriptionServiceAlgebra.get(user.id)
-        }
-      } yield optionOfGetSubscription
+        optionOfAUser <- userAlgebra.findUser(slackUserId)
+        user          <- optionOfAUser.liftTo[ConnectionIO](UserNotFound("User does not Exit"))
+        subscription  <- subscriptionServiceAlgebra.get(user.id)
+      } yield subscription
     }.transact(transactor)
 
     def postUserSubscriptions(slackUserId: SlackUserId, subscriptions: PostSubscriptions): F[Unit] =
       (for {
-        checkIfTheUserExits <- userAlgebra.findUser(slackUserId)
-        _ <- checkIfTheUserExits match {
-          case None =>
-            UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
-              .raiseError[ConnectionIO, Unit]
-
-          case Some(user) => subscriptionServiceAlgebra.post(user.id, subscriptions)
-        }
+        optionOfAUser <- userAlgebra.findUser(slackUserId)
+        user <- optionOfAUser.liftTo[ConnectionIO](
+          UserNotFound(
+            s"Invalid: User with ${slackUserId.slackUserId} does not exit"
+          )
+        )
+        _ <- subscriptionServiceAlgebra.post(user.id, subscriptions)
       } yield ()).transact(transactor)
 
     def deleteUserSubscription(
         slackUserId: SlackUserId,
         subscriptions: PostSubscriptions
     ): F[Unit] = (for {
-      user <- userAlgebra.findUser(slackUserId)
-      _ <- user match {
-        case None =>
-          UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
-            .raiseError[ConnectionIO, Unit]
-
-        case Some(user) => subscriptionServiceAlgebra.delete(user.id, subscriptions)
-      }
+      optionOfAUser <- userAlgebra.findUser(slackUserId)
+      user <- optionOfAUser.liftTo[ConnectionIO](
+        UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
+      )
+      _ <- subscriptionServiceAlgebra.delete(user.id, subscriptions)
     } yield ()).transact(transactor)
   }
 }

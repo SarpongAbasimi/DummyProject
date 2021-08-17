@@ -56,6 +56,11 @@ object Types {
       subscribeAt: SubscribeAt
   )
 
+  object GetSubscriptionData {
+    implicit val encoder: Encoder[GetSubscriptionData] = deriveEncoder[GetSubscriptionData]
+    implicit val decoder: Decoder[GetSubscriptionData] = deriveDecoder[GetSubscriptionData]
+  }
+
   final case class PostSubscriptionData(
       organization: Owner,
       repository: Repository
