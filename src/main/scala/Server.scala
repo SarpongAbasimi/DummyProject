@@ -1,7 +1,6 @@
 import routes.Routes
 import cats.effect._
 import fs2.Stream
-import cats.implicits._
 import connectionLayer.{DbConnection, UserAlgebra}
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder

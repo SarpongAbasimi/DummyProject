@@ -11,8 +11,8 @@ import doobie.postgres.implicits._
 object SubscriptionServicePersistenceLayer {
   val subscriptionServiceAlgImp: SubscriptionServiceAlgebra[ConnectionIO] =
     new SubscriptionServiceAlgebra[ConnectionIO] {
-      def get(id: Id): ConnectionIO[Option[GetSubscriptionData]] =
-        SubscriptionServiceQuery.get(id).option
+      def get(id: Id): ConnectionIO[List[GetSubscriptionData]] =
+        SubscriptionServiceQuery.get(id).to[List]
 
       def post(id: Id, subscriptions: PostSubscriptions): ConnectionIO[Unit] =
         for {

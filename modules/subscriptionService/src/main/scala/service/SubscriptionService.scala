@@ -1,5 +1,6 @@
 package service
 
+import Errors.UserNotFound
 import cats.effect.Sync
 import userDbAlgebra.UserAlgebra
 import subscriptionAlgebra.SubscriptionServiceAlgebra
@@ -7,9 +8,7 @@ import utils.Types.{GetSubscriptionData, Id, PostSubscriptions}
 import doobie.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
-
-sealed trait UserErrors                  extends Exception
-case class UserNotFound(message: String) extends UserErrors
+import cats.implicits._
 
 object SubscriptionService {
   def implementation[F[_]: Sync](
@@ -17,17 +16,15 @@ object SubscriptionService {
       subscriptionAlgebra: SubscriptionServiceAlgebra[ConnectionIO],
       transactor: Transactor[F]
   ): SubscriptionServiceAlgebra[F] = new SubscriptionServiceAlgebra[F] {
-    def get(id: Id): F[Option[GetSubscriptionData]] = {
+    def get(id: Id): F[List[GetSubscriptionData]] = {
       for {
         user <- userAlgebra.findUser(id)
         optionOfGetSubscription <- user match {
           case None =>
-            Sync[ConnectionIO].raiseError(
-              UserNotFound("User does not Exit")
-            )
+            UserNotFound("User does not Exit").raiseError[ConnectionIO, List[GetSubscriptionData]]
           case Some(user) => subscriptionAlgebra.get(user.id)
         }
-      } yield optionOfGetSubscription: Option[GetSubscriptionData]
+      } yield optionOfGetSubscription
     }.transact(transactor)
 
     def post(id: Id, subscriptions: PostSubscriptions): F[Unit] = (for {
