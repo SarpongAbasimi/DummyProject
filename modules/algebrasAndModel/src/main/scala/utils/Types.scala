@@ -10,6 +10,7 @@ import io.circe.generic.extras.semiauto.{
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 import java.util.UUID
+import java.time.{Instant}
 
 sealed trait Subscription extends Product with Serializable
 
@@ -32,7 +33,7 @@ object Types {
     implicit val decoder: Decoder[Owner] = deriveUnwrappedDecoder[Owner]
   }
 
-  final case class RepositoryId(repositoryId: String) extends AnyVal
+  final case class RepositoryId(repositoryId: UUID) extends AnyVal
   object RepositoryId {
     implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
@@ -44,7 +45,7 @@ object Types {
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
   }
 
-  final case class SubscribeAt(subscribeAt: String) extends AnyVal
+  final case class SubscribeAt(subscribeAt: Instant) extends AnyVal
   object SubscribeAt {
     implicit val decoder: Decoder[SubscribeAt] = deriveUnwrappedDecoder[SubscribeAt]
     implicit val encoder: Encoder[SubscribeAt] = deriveUnwrappedEncoder[SubscribeAt]

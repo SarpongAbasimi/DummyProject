@@ -32,7 +32,7 @@ object SubscriptionServicePersistenceLayer {
 
 object SubscriptionServiceQuery {
   def get(id: Id): Query0[GetSubscriptionData] =
-    sql"select owner, repository, subscribed_at::varchar from repositories join subscriptions using (repository_id) where user_id = ${id.id}"
+    sql"select owner, repository, subscribed_at from repositories join subscriptions using (repository_id) where user_id = ${id.id}"
       .query[GetSubscriptionData]
 
   def post(subscriptions: PostSubscriptionData): doobie.Update0 =
@@ -40,7 +40,7 @@ object SubscriptionServiceQuery {
 
   def insertInSubscription: Update[(Id, RepositoryId)] = {
     type SubscriptionInfo = (Id, RepositoryId)
-    val sql = "insert into subscriptions(id, repository_id) values(?,?)"
+    val sql = "insert into subscriptions(user_id, repository_id) values(?,?)"
     Update[SubscriptionInfo](sql)
   }
 
