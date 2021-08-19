@@ -11,7 +11,7 @@ import org.http4s.{Request, Uri}
 import org.scalatest.funspec.AsyncFunSpec
 import org.scalatest.matchers.should.Matchers
 import org.http4s.circe._
-import org.http4s.dsl.io.POST
+import org.http4s.dsl.io.{DELETE, POST}
 import org.http4s.implicits._
 import org.scalatest.FutureOutcome
 import service.SubscriptionService
@@ -134,6 +134,27 @@ class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers with ForAll
             )
             response <- Routes.subscription[IO](subscriptionService).orNotFound(request)
           } yield response).asserting(_.status.code shouldBe (201))
+        }
+      }
+
+      describe("with http method delete") {
+        it("should return a 204 status after successful resource deletion") {
+          (for {
+            user <- IO.pure(
+              User(
+                Id(UUID.randomUUID()),
+                SlackUserId("U2147483697"),
+                SlackChannelId(UUID.randomUUID())
+              )
+            )
+            deleteRequest <- IO.pure(
+              Request[IO](
+                method = DELETE,
+                uri = Uri.uri("subscription/U2147483697")
+              ).withEntity(TestMockedResponse.mockedPostUserSubscriptionBodyTwo)
+            )
+            deleteResponse <- Routes.subscription[IO](subscriptionService).orNotFound(deleteRequest)
+          } yield deleteResponse).asserting(_.status.code shouldBe (204))
         }
       }
     }
