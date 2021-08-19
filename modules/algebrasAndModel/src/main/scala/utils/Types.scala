@@ -10,6 +10,7 @@ import io.circe.generic.extras.semiauto.{
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
 
 import java.util.UUID
+import java.time.{Instant}
 
 sealed trait Subscription extends Product with Serializable
 
@@ -25,40 +26,54 @@ object Types {
       slackUserId: SlackUserId,
       slackChannelId: SlackChannelId
   )
-  final case class Organization(organization: String) extends AnyVal
-  object Organization {
-    implicit val organizationEncoder: Encoder[Organization] = deriveUnwrappedEncoder[Organization]
-    implicit val organizationDecoder: Decoder[Organization] = deriveUnwrappedDecoder[Organization]
+
+  final case class Owner(owner: String) extends AnyVal
+  object Owner {
+    implicit val encoder: Encoder[Owner] = deriveUnwrappedEncoder[Owner]
+    implicit val decoder: Decoder[Owner] = deriveUnwrappedDecoder[Owner]
   }
+
+  final case class RepositoryId(repositoryId: UUID) extends AnyVal
+  object RepositoryId {
+    implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
+    implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+  }
+
   final case class Repository(repository: String) extends AnyVal
   object Repository {
     implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
   }
 
-  final case class SubscribeAt(subscribeAt: String) extends AnyVal
+  final case class SubscribeAt(subscribeAt: Instant) extends AnyVal
   object SubscribeAt {
     implicit val decoder: Decoder[SubscribeAt] = deriveUnwrappedDecoder[SubscribeAt]
     implicit val encoder: Encoder[SubscribeAt] = deriveUnwrappedEncoder[SubscribeAt]
   }
 
   final case class GetSubscriptionData(
-      organization: Organization,
+      owner: Owner,
       repository: Repository,
       subscribeAt: SubscribeAt
   )
 
+  object GetSubscriptionData {
+    implicit val encoder: Encoder[GetSubscriptionData] = deriveEncoder[GetSubscriptionData]
+    implicit val decoder: Decoder[GetSubscriptionData] = deriveDecoder[GetSubscriptionData]
+  }
+
   final case class PostSubscriptionData(
-      organization: Organization,
+      organization: Owner,
       repository: Repository
   )
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData]) extends Subscription
+
   object PostSubscriptionData {
     implicit val postSubscriptionsDataDecoder: Decoder[PostSubscriptionData] =
       deriveDecoder[PostSubscriptionData]
     implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
       deriveEncoder[PostSubscriptionData]
   }
-  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])   extends Subscription
   final case class PostSubscriptions(subscriptions: List[PostSubscriptionData]) extends Subscription
   object PostSubscriptions {
     implicit val decoder: Decoder[PostSubscriptions] =

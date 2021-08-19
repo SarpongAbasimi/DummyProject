@@ -29,16 +29,37 @@ object TestMockedResponse {
 
   }
 
-  val mockedPostUserSubscriptionResponse: Json = {
+  val mockedPostUserSubscriptionOne: Json = {
     json"""
-        {
-          "subscriptions":[
-            {
-              "organization":"47deg",
-              "repository":"thool"
-            }
-          ]
-        }
+          {
+             "subscriptions":[
+                {
+                   "organization":"Argos",
+                   "repository":"dummyProject"
+                },
+                {
+                   "organization":"Barcelona",
+                   "repository":"skeuomorph"
+                }
+             ]
+          }
+        """
+  }
+
+  val mockedPostUserSubscriptionBodyTwo: Json = {
+    json"""
+          {
+             "subscriptions":[
+                {
+                   "organization":"Monzo",
+                   "repository":"MonzodummyProject"
+                },
+                {
+                   "organization":"Tesco",
+                   "repository":"TescoProject"
+                }
+             ]
+          }
         """
   }
 

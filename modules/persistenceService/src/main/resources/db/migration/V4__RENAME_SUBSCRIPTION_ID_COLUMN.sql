@@ -1,0 +1,1 @@
+ALTER TABLE subscriptions rename column id to user_id;
