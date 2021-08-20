@@ -4,7 +4,7 @@ import Errors.UserNotFound
 import cats.effect.Sync
 import userDbAlgebra.UserAlgebra
 import subscriptionAlgebra.{SubscriptionAlgebra, SubscriptionServiceAlgebra}
-import utils.Types.{GetSubscriptionData, Id, PostSubscriptions, SlackUserId}
+import utils.Types.{GetSubscriptionData, PostSubscriptions, SlackUserId}
 import doobie.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor

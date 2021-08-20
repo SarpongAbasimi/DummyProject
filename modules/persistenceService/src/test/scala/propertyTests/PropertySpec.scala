@@ -55,9 +55,17 @@ class PropertySpec
           val result: IO[Option[User]] = for {
             _ <- IO(println("Starting Migrations..."))
             dbConnection = new DbConnection[IO](
-              ApplicationConfig(driverName, connectionUrl, user, password)
+              ApplicationConfig(
+                driverName,
+                connectionUrl,
+                user,
+                password
+              )
             )
-            _ <- userAlgebraImplementation.insertUser(theUser).transact(dbConnection.connection)
+            _ <- userAlgebraImplementation
+              .insertUser(theUser)
+              .transact(dbConnection.connection)
+
             foundUser <- userAlgebraImplementation
               .findUser(theUser.slackUserId)
               .transact(dbConnection.connection)

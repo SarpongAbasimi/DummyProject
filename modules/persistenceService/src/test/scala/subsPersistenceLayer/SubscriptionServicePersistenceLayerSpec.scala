@@ -49,7 +49,7 @@ class SubscriptionServicePersistenceLayerSpec extends BaseSpec {
 
     describe("delete") {
       describe("when called") {
-        ignore("should unsubscribe from a list of repositories") {
+        it("should unsubscribe from a list of repositories") {
           val id    = Id(UUID.randomUUID())
           val query = SubscriptionServiceQuery.delete(id)
           check(query)
