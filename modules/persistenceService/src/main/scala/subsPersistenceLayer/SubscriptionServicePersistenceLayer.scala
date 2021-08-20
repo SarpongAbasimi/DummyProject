@@ -3,17 +3,9 @@ package subsPersistenceLayer
 import doobie.{ConnectionIO, Query0}
 import doobie.implicits._
 import subscriptionAlgebra.SubscriptionServiceAlgebra
-import utils.Types.{
-  GetSubscriptionData,
-  Id,
-  Owner,
-  PostSubscriptionData,
-  PostSubscriptions,
-  Repository,
-  RepositoryId
-}
+import utils.Types.{GetSubscriptionData, Id, PostSubscriptionData, PostSubscriptions, RepositoryId}
 import cats.implicits._
-import doobie.util.update.{Update, Update0}
+import doobie.util.update.{Update}
 import doobie.postgres.implicits._
 
 object SubscriptionServicePersistenceLayer {
@@ -33,11 +25,8 @@ object SubscriptionServicePersistenceLayer {
           _ <- SubscriptionServiceQuery.insertInSubscription.updateMany(subs).void
         } yield ()
 
-      def delete(id: Id, subscriptions: PostSubscriptions): ConnectionIO[Unit] = for {
-        _ <- subscriptions.subscriptions.traverse { data =>
-          SubscriptionServiceQuery.delete(id, data.organization, data.repository).run.void
-        }
-      } yield ()
+      def delete(id: Id, subscriptions: PostSubscriptions): ConnectionIO[Unit] =
+        SubscriptionServiceQuery.delete(id).updateMany(subscriptions.subscriptions).void
     }
 }
 
@@ -54,6 +43,9 @@ object SubscriptionServiceQuery {
     val sql = "insert into subscriptions(user_id, repository_id) values(?,?)"
     Update[SubscriptionInfo](sql)
   }
-  def delete(id: Id, organization: Owner, repository: Repository): Update0 =
-    sql"delete from subscriptions where user_id = ${id.id} and repository_id in (select repository_id from repositories where owner=${organization.owner} and repository=${repository.repository})".update
+  def delete(id: Id): Update[PostSubscriptionData] = {
+    val sql =
+      s"delete from subscriptions where user_id = '${id.id}' and repository_id in (select repository_id from repositories where owner =? and repository =?)"
+    Update[PostSubscriptionData](sql)
+  }
 }
