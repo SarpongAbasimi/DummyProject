@@ -23,9 +23,9 @@ object DbQueries {
     sql"insert into userdb (id, slack_user_id, slack_channel_id) values (${user.id}, ${user.slackUserId}, ${user.slackChannelId})".update
 
   def find(slackUserId: SlackUserId): Query0[User] =
-    sql"select id, slack_user_id, slack_channel_id from userdb where slack_user_id = ${slackUserId.slackUserId}"
+    sql"select id, slack_user_id, slack_channel_id from userdb where slack_user_id = ${slackUserId}"
       .query[User]
 
   def remove(id: Id): Update0 =
-    sql"delete from userdb where id = ${id.id}".update
+    sql"delete from userdb where id = ${id}".update
 }

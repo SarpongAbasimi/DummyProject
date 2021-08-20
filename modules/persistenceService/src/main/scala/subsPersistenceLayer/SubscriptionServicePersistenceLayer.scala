@@ -5,7 +5,7 @@ import doobie.implicits._
 import subscriptionAlgebra.SubscriptionServiceAlgebra
 import utils.Types.{GetSubscriptionData, Id, PostSubscriptionData, PostSubscriptions, RepositoryId}
 import cats.implicits._
-import doobie.util.update.{Update}
+import doobie.util.update.Update
 import doobie.postgres.implicits._
 
 object SubscriptionServicePersistenceLayer {
@@ -32,7 +32,7 @@ object SubscriptionServicePersistenceLayer {
 
 object SubscriptionServiceQuery {
   def get(id: Id): Query0[GetSubscriptionData] =
-    sql"select owner, repository, subscribed_at from repositories join subscriptions using (repository_id) where user_id = ${id.id}"
+    sql"select owner, repository, subscribed_at from repositories join subscriptions using (repository_id) where user_id = ${id}"
       .query[GetSubscriptionData]
 
   def post(subscriptions: PostSubscriptionData): doobie.Update0 =
