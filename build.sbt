@@ -13,6 +13,8 @@ lazy val circeGenericExtraVersion      = "0.13.0"
 lazy val chrisDavenportLog4CatsVersion = "1.1.1"
 lazy val circeLiteralVersion           = "0.13.0"
 lazy val logbackVersion                = "1.2.3"
+lazy val kafkaFs2Version               = "1.7.0"
+lazy val fs2KafkaVulcan                = "1.7.0"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -36,7 +38,9 @@ lazy val applicationSettings = Seq(
     "com.dimafeng"          %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
     "com.dimafeng"          %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
     "org.scalacheck"        %% "scalacheck"                      % scalaCheckVersion          % "test",
-    "org.scalatestplus"     %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test"
+    "org.scalatestplus"     %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test",
+    "com.github.fd4s"       %% "fs2-kafka"                       % kafkaFs2Version,
+    "com.github.fd4s"       %% "fs2-kafka-vulcan"                % fs2KafkaVulcan
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
@@ -52,7 +56,10 @@ lazy val applicationSettings = Seq(
     case PathList("META-INF", "MANIFEST.MF") =>
       MergeStrategy.discard
     case _ => MergeStrategy.first
-  }
+  },
+  resolvers ++= Seq(
+    "confluent" at "https://packages.confluent.io/maven/"
+  )
 )
 
 lazy val persistenceService = (project in file("modules/persistenceService"))

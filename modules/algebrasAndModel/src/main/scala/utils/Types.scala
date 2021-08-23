@@ -8,11 +8,10 @@ import io.circe.generic.extras.semiauto.{
   deriveUnwrappedEncoder
 }
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-
 import java.util.UUID
-import java.time.{Instant}
+import java.time.Instant
 
-sealed trait Subscription extends Product with Serializable
+sealed trait OperationType extends Product with Serializable
 
 object Types {
   implicit val config: Configuration = Configuration.default.withSnakeCaseMemberNames
@@ -66,7 +65,7 @@ object Types {
       organization: Owner,
       repository: Repository
   )
-  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData]) extends Subscription
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])
 
   object PostSubscriptionData {
     implicit val postSubscriptionsDataDecoder: Decoder[PostSubscriptionData] =
@@ -74,7 +73,7 @@ object Types {
     implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
       deriveEncoder[PostSubscriptionData]
   }
-  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData]) extends Subscription
+  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData])
   object PostSubscriptions {
     implicit val decoder: Decoder[PostSubscriptions] =
       deriveDecoder[PostSubscriptions]
@@ -181,7 +180,7 @@ object Types {
       responseUrl: ResponseUrl,
       triggerId: TriggerId,
       apiAppId: ApiAppId
-  ) extends Subscription
+  )
 
   object SlackCommandRequestBody {
     implicit val encoder: Encoder[SlackCommandRequestBody] =
@@ -189,4 +188,32 @@ object Types {
     implicit val decoder: Decoder[SlackCommandRequestBody] =
       deriveConfiguredDecoder[SlackCommandRequestBody]
   }
+
+  final case class SchemaRegistryUrl(
+      schemaRegistryUrl: String
+  ) extends AnyVal
+
+  final case class Password(
+      password: String
+  ) extends AnyVal
+
+  final case class Topic(
+      topic: String
+  ) extends AnyVal
+  final case class BootstrapServer(
+      bootstrapServer: String
+  ) extends AnyVal
+  final case class GroupId(
+      groupId: String
+  ) extends AnyVal
+
+  final case object NewSubscription                   extends OperationType
+  final case object DeleteSubscription                extends OperationType
+  final case class Organization(organization: String) extends AnyVal
+
+  final case class MessageEvent(
+      operationType: OperationType,
+      organization: Organization,
+      repository: Repository
+  )
 }
