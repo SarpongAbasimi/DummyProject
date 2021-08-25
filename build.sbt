@@ -15,32 +15,34 @@ lazy val circeLiteralVersion           = "0.13.0"
 lazy val logbackVersion                = "1.2.3"
 lazy val kafkaFs2Version               = "1.7.0"
 lazy val fs2KafkaVulcan                = "1.7.0"
+lazy val embeddedKafkaVersion          = "2.8.0"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
   scalaVersion := "2.13.5",
   libraryDependencies ++= Seq(
-    "org.http4s"            %% "http4s-dsl"                      % http4sVersion,
-    "org.http4s"            %% "http4s-blaze-server"             % http4sVersion,
-    "org.http4s"            %% "http4s-blaze-client"             % http4sVersion,
-    "org.http4s"            %% "http4s-circe"                    % http4sVersion,
-    "com.github.pureconfig" %% "pureconfig"                      % pureConfigVersion,
-    "org.tpolecat"          %% "doobie-scalatest"                % doobieVersion              % Test,
-    "com.codecommit"        %% "cats-effect-testing-scalatest"   % catsEffectTestVersions     % Test,
-    "org.http4s"            %% "http4s-prometheus-metrics"       % http4sVersion,
-    "io.circe"              %% "circe-generic-extras"            % circeGenericExtraVersion,
-    "io.chrisdavenport"     %% "log4cats-slf4j"                  % chrisDavenportLog4CatsVersion,
-    "io.circe"              %% "circe-literal"                   % circeLiteralVersion,
-    "ch.qos.logback"         % "logback-classic"                 % logbackVersion,
-    "org.tpolecat"          %% "doobie-core"                     % doobieVersion,
-    "org.tpolecat"          %% "doobie-postgres"                 % doobieVersion,
-    "org.tpolecat"          %% "doobie-specs2"                   % doobieVersion,
-    "com.dimafeng"          %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
-    "com.dimafeng"          %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
-    "org.scalacheck"        %% "scalacheck"                      % scalaCheckVersion          % "test",
-    "org.scalatestplus"     %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test",
-    "com.github.fd4s"       %% "fs2-kafka"                       % kafkaFs2Version,
-    "com.github.fd4s"       %% "fs2-kafka-vulcan"                % fs2KafkaVulcan
+    "org.http4s"              %% "http4s-dsl"                      % http4sVersion,
+    "org.http4s"              %% "http4s-blaze-server"             % http4sVersion,
+    "org.http4s"              %% "http4s-blaze-client"             % http4sVersion,
+    "org.http4s"              %% "http4s-circe"                    % http4sVersion,
+    "com.github.pureconfig"   %% "pureconfig"                      % pureConfigVersion,
+    "org.tpolecat"            %% "doobie-scalatest"                % doobieVersion              % Test,
+    "com.codecommit"          %% "cats-effect-testing-scalatest"   % catsEffectTestVersions     % Test,
+    "org.http4s"              %% "http4s-prometheus-metrics"       % http4sVersion,
+    "io.circe"                %% "circe-generic-extras"            % circeGenericExtraVersion,
+    "io.chrisdavenport"       %% "log4cats-slf4j"                  % chrisDavenportLog4CatsVersion,
+    "io.circe"                %% "circe-literal"                   % circeLiteralVersion,
+    "ch.qos.logback"           % "logback-classic"                 % logbackVersion,
+    "org.tpolecat"            %% "doobie-core"                     % doobieVersion,
+    "org.tpolecat"            %% "doobie-postgres"                 % doobieVersion,
+    "org.tpolecat"            %% "doobie-specs2"                   % doobieVersion,
+    "com.dimafeng"            %% "testcontainers-scala-postgresql" % testContainersScalaVersion % "test",
+    "com.dimafeng"            %% "testcontainers-scala-scalatest"  % testContainersScalaVersion % "test",
+    "org.scalacheck"          %% "scalacheck"                      % scalaCheckVersion          % "test",
+    "org.scalatestplus"       %% "scalacheck-1-15"                 % scalaTestScalaCheckVersion % "test",
+    "com.github.fd4s"         %% "fs2-kafka"                       % kafkaFs2Version,
+    "com.github.fd4s"         %% "fs2-kafka-vulcan"                % fs2KafkaVulcan,
+    "io.github.embeddedkafka" %% "embedded-kafka"                  % embeddedKafkaVersion       % Test
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
