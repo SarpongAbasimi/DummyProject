@@ -1,8 +1,15 @@
 package kafka
 
-import cats.effect.Sync
+import cats.effect.{ConcurrentEffect, ContextShift, Sync}
 import config.KafkaConfig
-import fs2.kafka.{ProducerSettings, RecordSerializer, Serializer}
+import fs2.kafka.{
+  KafkaProducer,
+  ProducerRecord,
+  ProducerRecords,
+  ProducerSettings,
+  RecordSerializer,
+  Serializer
+}
 import vulcan.{AvroError, Codec}
 import fs2.kafka.vulcan.avroSerializer
 import kafkaAlgebra.KafkaAlgebra
@@ -18,6 +25,7 @@ import utils.Types.{
   SchemaRegistryUrl,
   UserName
 }
+import fs2.Stream
 
 object KafkaImplementation {
   implicit val operationTypeCodec: Codec[OperationType] = Codec.enumeration[OperationType](
@@ -52,23 +60,49 @@ object KafkaImplementation {
     )
   }
 
-  def imp[F[_]: Sync](kafkaConfig: KafkaConfig) = new KafkaAlgebra[F] {
-    implicit val messageEventSerializer: RecordSerializer[F, MessageEvent] =
-      avroSerializer[MessageEvent].using(
-        avroSettings(
-          SchemaRegistryUrl(kafkaConfig.schemaRegistryUrl.schemaRegistryUrl),
-          UserName(kafkaConfig.userName.userName),
-          Password(kafkaConfig.password.password)
+  def imp[F[_]: Sync: ConcurrentEffect: ContextShift](
+      kafkaConfig: KafkaConfig
+  ): KafkaAlgebra[F, Int, MessageEvent] =
+    new KafkaAlgebra[F, Int, MessageEvent] {
+      implicit val messageEventSerializer: RecordSerializer[F, MessageEvent] =
+        avroSerializer[MessageEvent].using(
+          avroSettings(
+            SchemaRegistryUrl(kafkaConfig.schemaRegistryUrl.schemaRegistryUrl),
+            UserName(kafkaConfig.userName.userName),
+            Password(kafkaConfig.password.password)
+          )
         )
-      )
 
-    def producerSettings: ProducerSettings[F, String, MessageEvent] =
-      ProducerSettings[F, String, MessageEvent](
-        keySerializer = Serializer[F, String],
-        valueSerializer = messageEventSerializer
-      )
-        .withBootstrapServers(
-          kafkaConfig.bootstrapServer.bootstrapServer
+      def producerSettings: ProducerSettings[F, Int, MessageEvent] =
+        ProducerSettings[F, Int, MessageEvent](
+          keySerializer = Serializer[F, Int],
+          valueSerializer = messageEventSerializer
         )
-  }
+          .withBootstrapServers(
+            kafkaConfig.bootstrapServer.bootstrapServer
+          )
+
+      def publish(
+          key: Int,
+          messageEvent: MessageEvent
+      ): Stream[F, Unit] = for {
+        kafkaProducer: KafkaProducer.Metrics[F, Int, MessageEvent] <- KafkaProducer.stream(
+          producerSettings
+        )
+        record: ProducerRecord[Int, MessageEvent] <- Stream.eval(
+          Sync[F].delay(
+            ProducerRecord[Int, MessageEvent](
+              kafkaConfig.topic.topic,
+              key,
+              messageEvent
+            )
+          )
+        )
+        _ <- Stream.eval(
+          kafkaProducer.produce(ProducerRecords.one(record)) *> Sync[F].delay(
+            println(s"Message Event has been emitted to ${kafkaConfig.topic.topic}")
+          )
+        )
+      } yield ()
+    }
 }

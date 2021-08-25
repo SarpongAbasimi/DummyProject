@@ -1,13 +1,15 @@
 package kafkaAlgebra
 
 import cats.effect.Sync
-import fs2.kafka.ProducerSettings
+import fs2.kafka.{ProducerRecords, ProducerSettings}
 import fs2.kafka.vulcan.{Auth, AvroSettings, SchemaRegistryClientSettings}
-import utils.Types.{MessageEvent, Password, SchemaRegistryUrl, UserName}
+import utils.Types.{Password, SchemaRegistryUrl, UserName}
+import fs2.Stream
 
-trait KafkaAlgebra[F[_]] {
-  def producerSettings: ProducerSettings[F, String, MessageEvent]
+trait KafkaAlgebra[F[_], K, V] {
 
+  def publish(key: K, messageEvent: V): Stream[F, Unit]
+  def producerSettings: ProducerSettings[F, K, V]
   def avroSettings(
       schemaRegistryUrl: SchemaRegistryUrl,
       userName: UserName,
