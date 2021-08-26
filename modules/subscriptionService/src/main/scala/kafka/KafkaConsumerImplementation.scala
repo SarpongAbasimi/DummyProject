@@ -12,7 +12,6 @@ import fs2.kafka.{
 }
 import fs2.kafka.vulcan.{avroDeserializer, AvroSettings, SchemaRegistryClientSettings}
 import kafkaAlgebra.KafkaConsumerAlgebra
-import KafkaCodec._
 import utils.Types.MessageEvent
 import fs2.Stream
 import cats.implicits._
@@ -32,7 +31,7 @@ object KafkaConsumerImplementation {
           .evalTap(_.subscribeTo(kafkaConfig.topic.topic))
           .flatMap { consumer =>
             Stream.eval(
-              Sync[F].delay(s"About to create data from topic ${kafkaConfig.topic.topic}")
+              Sync[F].delay(s"About to consume data from topic: ${kafkaConfig.topic.topic}")
             ) *> consumer.stream
           }
 

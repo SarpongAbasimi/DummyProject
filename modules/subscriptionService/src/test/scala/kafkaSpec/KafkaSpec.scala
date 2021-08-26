@@ -5,13 +5,14 @@ import cats.effect.IO
 import config.KafkaConfig
 import kafka.{KafkaConsumerImplementation, KafkaProducerImplementation}
 import net.manub.embeddedkafka.schemaregistry.{EmbeddedKafka, EmbeddedKafkaConfig}
+import scala.concurrent.duration._
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.should.Matchers
+import utils.Types.OperationType.NewSubscription
 import utils.Types.{
   BootstrapServer,
   GroupId,
   MessageEvent,
-  NewSubscription,
   Organization,
   Password,
   Repository,
@@ -19,14 +20,14 @@ import utils.Types.{
   Topic,
   UserName
 }
-import fs2.Stream
-class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with EmbeddedKafka {
 
+class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with EmbeddedKafka {
   "Kafka" - {
     "should receive a message event when published" in {
-      implicit val config = EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
-      withRunningKafka {
+      implicit val kafkaConfig: EmbeddedKafkaConfig =
+        EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
 
+      withRunningKafka {
         val operationType = NewSubscription
         val organization  = Organization("47Degrees")
         val repository    = Repository("Scala Exercise")
@@ -48,12 +49,13 @@ class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Embedd
 
         consumedResult
           .map(_.record.value)
+          .interruptAfter(10.seconds)
           .compile
-          .toList
+          .lastOrError
           .asserting { listOfMessageEvent =>
-            listOfMessageEvent.head.operationType shouldBe operationType
-            listOfMessageEvent.head.organization shouldBe organization
-            listOfMessageEvent.head.repository shouldBe repository
+            listOfMessageEvent.operationType shouldBe operationType
+            listOfMessageEvent.organization shouldBe organization
+            listOfMessageEvent.repository shouldBe repository
           }
       }
     }

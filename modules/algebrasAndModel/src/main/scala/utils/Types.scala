@@ -8,10 +8,11 @@ import io.circe.generic.extras.semiauto.{
   deriveUnwrappedEncoder
 }
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
+import vulcan.Codec
+import enumeratum.{Enum, EnumEntry, VulcanEnum}
 import java.util.UUID
 import java.time.Instant
-
-sealed trait OperationType extends Product with Serializable
+import vulcan.generic._
 
 object Types {
   implicit val config: Configuration = Configuration.default.withSnakeCaseMemberNames
@@ -42,6 +43,7 @@ object Types {
   object Repository {
     implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+    implicit val codec: Codec[Repository]     = Codec.derive[Repository]
   }
 
   final case class SubscribeAt(subscribeAt: Instant) extends AnyVal
@@ -207,13 +209,31 @@ object Types {
       groupId: String
   ) extends AnyVal
 
-  final case object NewSubscription                   extends OperationType
-  final case object DeleteSubscription                extends OperationType
+  @AvroNamespace("com.OperationType")
+  @AvroDoc("The different operation type")
+  sealed trait OperationType extends Product with Serializable with EnumEntry
+  object OperationType extends Enum[OperationType] with VulcanEnum[OperationType] {
+    case object NewSubscription    extends OperationType
+    case object DeleteSubscription extends OperationType
+
+    val values = findValues
+  }
+
   final case class Organization(organization: String) extends AnyVal
 
+  object Organization {
+    implicit val codec: Codec[Organization] = Codec.derive[Organization]
+  }
+
+  @AvroNamespace("com.MessageEvent")
   final case class MessageEvent(
       operationType: OperationType,
       organization: Organization,
       repository: Repository
   )
+
+  object MessageEvent {
+    implicit val codec: Codec[MessageEvent] =
+      Codec.derive[MessageEvent]
+  }
 }

@@ -1,7 +1,6 @@
 package kafka
 
 import cats.effect.{ConcurrentEffect, ContextShift, Sync}
-import KafkaCodec._
 import config.KafkaConfig
 import fs2.kafka.{
   KafkaProducer,

@@ -17,6 +17,10 @@ lazy val kafkaFs2Version               = "1.7.0"
 lazy val fs2KafkaVulcan                = "1.7.0"
 lazy val embeddedKafkaVersion          = "2.7.0"
 lazy val embeddedKafkaSchemaRegistry   = "6.1.0"
+lazy val logbackCorVersion             = "1.2.3"
+lazy val genericVulcanVersion          = "1.7.1"
+lazy val enumeratumVersion             = "1.7.0"
+lazy val vulcanEnum                    = "1.7.1"
 
 lazy val applicationSettings = Seq(
   version := "0.1",
@@ -44,7 +48,11 @@ lazy val applicationSettings = Seq(
     "com.github.fd4s"         %% "fs2-kafka"                       % kafkaFs2Version,
     "com.github.fd4s"         %% "fs2-kafka-vulcan"                % fs2KafkaVulcan,
     "io.github.embeddedkafka" %% "embedded-kafka-schema-registry"  % embeddedKafkaSchemaRegistry % Test,
-    "io.github.embeddedkafka" %% "embedded-kafka"                  % embeddedKafkaVersion        % Test
+    "io.github.embeddedkafka" %% "embedded-kafka"                  % embeddedKafkaVersion        % Test,
+    "ch.qos.logback"           % "logback-core"                    % logbackCorVersion,
+    "com.github.fd4s"         %% "vulcan-generic"                  % genericVulcanVersion,
+    "com.beachape"            %% "enumeratum"                      % enumeratumVersion,
+    "com.github.fd4s"         %% "vulcan-enumeratum"               % vulcanEnum
   ),
   libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
