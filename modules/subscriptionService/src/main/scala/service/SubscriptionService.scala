@@ -1,6 +1,7 @@
 package service
 
 import Errors.UserNotFound
+import cats.data.OptionT
 import cats.effect.Sync
 import userDbAlgebra.UserAlgebra
 import subscriptionAlgebra.{SubscriptionAlgebra, SubscriptionServiceAlgebra}
@@ -9,16 +10,15 @@ import utils.Types.{
   MessageEvent,
   Organization,
   PostSubscriptions,
-  Repository,
-  SlackUserId
+  SlackUserId,
+  User
 }
 import doobie.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import cats.implicits._
 import kafkaAlgebra.KafkaProducerAlgebra
-import utils.Types.OperationType.{DeleteSubscription}
-import fs2.Stream
+import utils.Types.OperationType.{DeleteSubscription, NewSubscription}
 
 object SubscriptionService {
   def implementation[F[_]: Sync](
@@ -36,26 +36,46 @@ object SubscriptionService {
     }.transact(transactor)
 
     def postUserSubscriptions(slackUserId: SlackUserId, subscriptions: PostSubscriptions): F[Unit] =
-      (for {
-        optionOfAUser <- userAlgebra.findUser(slackUserId)
-        user <- optionOfAUser.liftTo[ConnectionIO](
-          UserNotFound(
-            s"Invalid: User with ${slackUserId.slackUserId} does not exit"
+      dbOperation(slackUserId, subscriptions).transact(transactor).flatMap { user =>
+        subscriptions.subscriptions.traverse_ { subs =>
+          kafkaProducer.publish(
+            user.id.id.toString,
+            MessageEvent(
+              NewSubscription,
+              Organization(subs.organization.owner),
+              subs.repository
+            )
           )
-        )
-        _ <- subscriptionServiceAlgebra.post(user.id, subscriptions)
-      } yield ()).transact(transactor)
+        }
+      }
 
     def deleteUserSubscription(
         slackUserId: SlackUserId,
         subscriptions: PostSubscriptions
-    ): F[Unit] = (for {
-      optionOfAUser <- userAlgebra.findUser(slackUserId)
-      user <- optionOfAUser.liftTo[ConnectionIO](
-        UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
-      )
-      _ <- subscriptionServiceAlgebra.delete(user.id, subscriptions)
-//      _ <- kafkaProducer.publish()
-    } yield ()).transact(transactor)
+    ): F[Unit] = {
+      dbOperation(slackUserId, subscriptions).transact(transactor).flatMap { user =>
+        subscriptions.subscriptions.traverse_ { subs =>
+          kafkaProducer.publish(
+            user.id.id.toString,
+            MessageEvent(
+              DeleteSubscription,
+              Organization(subs.organization.owner),
+              subs.repository
+            )
+          )
+        }
+      }
+    }
+
+    private def dbOperation(
+        slackUserId: SlackUserId,
+        subscriptions: PostSubscriptions
+    ): ConnectionIO[User] =
+      OptionT[ConnectionIO, User](userAlgebra.findUser(slackUserId))
+        .semiflatTap(user => subscriptionServiceAlgebra.delete(user.id, subscriptions))
+        .getOrElseF(
+          UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
+            .raiseError[ConnectionIO, User]
+        )
   }
 }

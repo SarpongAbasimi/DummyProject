@@ -20,6 +20,8 @@ import utils.Types.{
   Topic,
   UserName
 }
+import fs2.Stream
+import fs2.kafka.CommittableConsumerRecord
 
 class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with EmbeddedKafka {
   "Kafka" - {
@@ -31,19 +33,18 @@ class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Embedd
         val operationType = NewSubscription
         val organization  = Organization("47Degrees")
         val repository    = Repository("Scala Exercise")
-        val messageEvent  = MessageEvent(operationType, organization, repository)
 
         val config = KafkaConfig(
           Topic("dummyProject"),
-          BootstrapServer("http://localhost:9092"),
+          BootstrapServer("localhost:9092"),
           GroupId("publisher"),
           SchemaRegistryUrl("http://localhost:8081"),
           UserName("Ben"),
           Password("password")
         )
 
-        val consumedResult = for {
-          _                         <- KafkaProducerImplementation.imp[IO](config).publish("1", messageEvent)
+        val consumedResult: Stream[IO, CommittableConsumerRecord[IO, String, MessageEvent]] = for {
+          _                         <- Stream.resource(KafkaProducerImplementation.resource[IO](config))
           committableConsumerRecord <- KafkaConsumerImplementation.imp[IO](config).consume.take(1)
         } yield committableConsumerRecord
 

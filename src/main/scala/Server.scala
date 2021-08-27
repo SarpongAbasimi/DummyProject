@@ -13,14 +13,18 @@ import scala.concurrent.ExecutionContext.global
 
 object Server {
 
-  def stream[F[_]: Timer: ConcurrentEffect: ContextShift](
+  def stream[F[_]: Timer: ConcurrentEffect: ContextShift: Sync](
       dbConnection: DbConnection[F],
       kafkaConfig: KafkaConfig
   ): Stream[F, ExitCode] = {
     for {
+
       _ <- BlazeClientBuilder[F](global).stream
 
-      kafkaProducer       = KafkaProducerImplementation.imp[F](kafkaConfig)
+      kafkaProducer <- Stream.resource(
+        KafkaProducerImplementation.resource[F](kafkaConfig)
+      )
+
       userAlgebra         = UserAlgebra.userAlgebraImplementation
       subscriptionAlgebra = SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp
       transactor          = dbConnection.connection
