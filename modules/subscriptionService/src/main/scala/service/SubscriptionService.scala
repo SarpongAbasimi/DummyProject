@@ -4,17 +4,28 @@ import Errors.UserNotFound
 import cats.effect.Sync
 import userDbAlgebra.UserAlgebra
 import subscriptionAlgebra.{SubscriptionAlgebra, SubscriptionServiceAlgebra}
-import utils.Types.{GetSubscriptionData, PostSubscriptions, SlackUserId}
+import utils.Types.{
+  GetSubscriptionData,
+  MessageEvent,
+  Organization,
+  PostSubscriptions,
+  Repository,
+  SlackUserId
+}
 import doobie.ConnectionIO
 import doobie.implicits._
 import doobie.util.transactor.Transactor
 import cats.implicits._
+import kafkaAlgebra.KafkaProducerAlgebra
+import utils.Types.OperationType.{DeleteSubscription}
+import fs2.Stream
 
 object SubscriptionService {
   def implementation[F[_]: Sync](
       userAlgebra: UserAlgebra[ConnectionIO],
       subscriptionServiceAlgebra: SubscriptionServiceAlgebra[ConnectionIO],
-      transactor: Transactor[F]
+      transactor: Transactor[F],
+      kafkaProducer: KafkaProducerAlgebra[F, String, MessageEvent]
   ): SubscriptionAlgebra[F] = new SubscriptionAlgebra[F] {
     def getUserSubscriptions(slackUserId: SlackUserId): F[List[GetSubscriptionData]] = {
       for {
@@ -44,6 +55,7 @@ object SubscriptionService {
         UserNotFound(s"Invalid: User with ${slackUserId.slackUserId} does not exit")
       )
       _ <- subscriptionServiceAlgebra.delete(user.id, subscriptions)
+//      _ <- kafkaProducer.publish()
     } yield ()).transact(transactor)
   }
 }

@@ -1,7 +1,9 @@
 import routes.Routes
 import cats.effect._
+import config.KafkaConfig
 import fs2.Stream
 import connectionLayer.{DbConnection, UserAlgebra}
+import kafka.KafkaProducerImplementation
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
@@ -11,9 +13,14 @@ import scala.concurrent.ExecutionContext.global
 
 object Server {
 
-  def stream[F[_]: Timer: ConcurrentEffect](dbConnection: DbConnection[F]): Stream[F, ExitCode] = {
+  def stream[F[_]: Timer: ConcurrentEffect: ContextShift](
+      dbConnection: DbConnection[F],
+      kafkaConfig: KafkaConfig
+  ): Stream[F, ExitCode] = {
     for {
       _ <- BlazeClientBuilder[F](global).stream
+
+      kafkaProducer       = KafkaProducerImplementation.imp[F](kafkaConfig)
       userAlgebra         = UserAlgebra.userAlgebraImplementation
       subscriptionAlgebra = SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp
       transactor          = dbConnection.connection
@@ -21,7 +28,8 @@ object Server {
       subscriptionService = SubscriptionService.implementation[F](
         userAlgebra,
         subscriptionAlgebra,
-        transactor
+        transactor,
+        kafkaProducer
       )
 
       services = (Routes.subscription[F](subscriptionService)).orNotFound
