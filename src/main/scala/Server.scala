@@ -9,6 +9,7 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 import service.SubscriptionService
 import subsPersistenceLayer.SubscriptionServicePersistenceLayer
+
 import scala.concurrent.ExecutionContext.global
 
 object Server {
@@ -19,12 +20,10 @@ object Server {
   ): Stream[F, ExitCode] = {
     for {
       _ <- BlazeClientBuilder[F](global).stream
-
-      kafkaProducer       = KafkaProducerImplementation.imp[F](kafkaConfig)
+      kafkaProducer       <- Stream.resource(KafkaProducerImplementation.resource[F](kafkaConfig))
       userAlgebra         = UserAlgebra.userAlgebraImplementation
       subscriptionAlgebra = SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp
       transactor          = dbConnection.connection
-
       subscriptionService = SubscriptionService.implementation[F](
         userAlgebra,
         subscriptionAlgebra,
