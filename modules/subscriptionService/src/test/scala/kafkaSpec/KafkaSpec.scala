@@ -38,7 +38,7 @@ import fs2.kafka.{
   Deserializer => ConsumerDeserializer
 }
 import migrations.DbMigrations
-import net.manub.embeddedkafka.EmbeddedKafka
+import net.manub.embeddedkafka.schemaregistry.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.FutureOutcome
 
 class KafkaSpec
@@ -79,7 +79,7 @@ class KafkaSpec
   }
 
   "Kafka" - {
-    "should receive a message event when published" ignore {
+    "should receive a message event when published" in {
 
       /**
        * Embedded kafka
@@ -87,7 +87,7 @@ class KafkaSpec
        * Test passes when a stand alone schema registry is run
        */
 
-//      implicit val kafkaConfig = EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
+      implicit val kafkaConfig = EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
 
       withRunningKafka {
         val operationType = NewSubscription
