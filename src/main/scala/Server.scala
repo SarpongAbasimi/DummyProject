@@ -3,12 +3,13 @@ import cats.effect._
 import config.KafkaConfig
 import fs2.Stream
 import connectionLayer.{DbConnection, UserAlgebra}
-import kafka.KafkaProducerImplementation
+import kafka.{KafkaConsumerImplementation, KafkaProducerImplementation}
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 import service.SubscriptionService
 import subsPersistenceLayer.SubscriptionServicePersistenceLayer
+
 import scala.concurrent.ExecutionContext.global
 
 object Server {
@@ -23,6 +24,10 @@ object Server {
 
       kafkaProducer <- Stream.resource(
         KafkaProducerImplementation.resource[F](kafkaConfig)
+      )
+
+      kafkaConsumer <- Stream.resource(
+        KafkaConsumerImplementation.resource(kafkaConfig)
       )
 
       userAlgebra         = UserAlgebra.userAlgebraImplementation

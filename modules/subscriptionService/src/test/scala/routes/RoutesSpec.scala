@@ -2,7 +2,7 @@ package routes
 import cats.effect.IO
 import cats.effect.testing.scalatest.AsyncIOSpec
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
-import config.{ApplicationConfig, ConnectionUrl, DriverName, PassWord, User => DbUser}
+import config.{ApplicationConfig, ConnectionUrl, DriverName, KafkaConfig, PassWord, User => DbUser}
 import connectionLayer.UserAlgebra
 import doobie.util.transactor.Transactor
 import io.circe.Json
@@ -17,8 +17,21 @@ import org.scalatest.FutureOutcome
 import service.SubscriptionService
 import subsPersistenceLayer.SubscriptionServicePersistenceLayer
 import subscriptionAlgebra.SubscriptionAlgebra
-import utils.Types.{Id, SlackChannelId, SlackUserId, User}
+import utils.Types.{
+  BootstrapServer,
+  GroupId,
+  Id,
+  Password,
+  SchemaRegistryUrl,
+  SlackChannelId,
+  SlackUserId,
+  Topic,
+  User,
+  UserName
+}
 import doobie.implicits._
+import kafka.KafkaProducerImplementation
+
 import java.util.UUID
 
 //class RoutesSpec extends AsyncFunSpec with AsyncIOSpec with Matchers with ForAllTestContainer {
@@ -63,14 +76,26 @@ import java.util.UUID
 //        container.password
 //      )
 //    )
-//    user         <- IO.pure(UserAlgebra.userAlgebraImplementation)
-//    subscription <- IO.pure(SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp)
-//  } yield SubscriptionService.implementation[IO](user, subscription, xa)).unsafeRunSync()
+//    kafkaConfig <- IO.pure(
+//      KafkaConfig(
+//        Topic("dummyProject"),
+//        BootstrapServer("localhost:9092"),
+//        GroupId("publisher"),
+//        SchemaRegistryUrl("http://localhost:8081"),
+//        UserName("Ben"),
+//        Password("password")
+//      )
+//    )
+//    kafkaProducer <- KafkaProducerImplementation.resource[IO](kafkaConfig).use(IO(_))
+//    user          <- IO.pure(UserAlgebra.userAlgebraImplementation)
+//    subscription  <- IO.pure(SubscriptionServicePersistenceLayer.subscriptionServiceAlgImp)
+//  } yield SubscriptionService.implementation[IO](user, subscription, xa, kafkaProducer))
+//    .unsafeRunSync()
 //
 //  describe("Routes") {
 //    describe("subscription") {
 //      describe("when it receives a request with a userId") {
-//        it("should respond with the right response data and status code") {
+//        ignore("should respond with the right response data and status code") {
 //          {
 //            for {
 //              user <- IO.pure(
@@ -100,7 +125,7 @@ import java.util.UUID
 //
 //    describe("When a post request is sent to the user subscription route") {
 //      describe("with the wrong request body") {
-//        it("should return a 400 status code") {
+//        ignore("should return a 400 status code") {
 //          {
 //            for {
 //              request <- IO.pure(
@@ -116,7 +141,7 @@ import java.util.UUID
 //      }
 //
 //      describe("with the correct body") {
-//        it("should return a 201 status code") {
+//        ignore("should return a 201 status code") {
 //          (for {
 //            user <- IO.pure(
 //              User(
@@ -138,7 +163,7 @@ import java.util.UUID
 //      }
 //
 //      describe("with http method delete") {
-//        it("should return a 204 status after successful resource deletion") {
+//        ignore("should return a 204 status after successful resource deletion") {
 //          (for {
 //            user <- IO.pure(
 //              User(
@@ -161,7 +186,7 @@ import java.util.UUID
 //
 //    describe("when a post request is sent to the subscription route") {
 //      describe("with a slack command") {
-//        it("should return the right response") {
+//        ignore("should return the right response") {
 //          (for {
 //            request <- IO.pure(
 //              Request[IO](

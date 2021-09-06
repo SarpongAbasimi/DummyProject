@@ -4,7 +4,7 @@ import cats.effect.testing.scalatest.AsyncIOSpec
 import cats.effect.IO
 import config.KafkaConfig
 import kafka.{KafkaConsumerImplementation, KafkaProducerImplementation}
-import net.manub.embeddedkafka.schemaregistry.{EmbeddedKafka, EmbeddedKafkaConfig}
+
 import scala.concurrent.duration._
 import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.should.Matchers
@@ -22,12 +22,13 @@ import utils.Types.{
 }
 import fs2.Stream
 import fs2.kafka.CommittableConsumerRecord
+import net.manub.embeddedkafka.EmbeddedKafka
+//import net.manub.embeddedkafka.schemaregistry.{EmbeddedKafka, EmbeddedKafkaConfig}
 
 class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with EmbeddedKafka {
   "Kafka" - {
     "should receive a message event when published" in {
-      implicit val kafkaConfig: EmbeddedKafkaConfig =
-        EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
+//      implicit val kafkaConfig = EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
 
       withRunningKafka {
         val operationType = NewSubscription
@@ -43,9 +44,10 @@ class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Embedd
           Password("password")
         )
 
-        val consumedResult: Stream[IO, CommittableConsumerRecord[IO, String, MessageEvent]] = for {
+        val consumedResult = for {
           _                         <- Stream.resource(KafkaProducerImplementation.resource[IO](config))
-          committableConsumerRecord <- KafkaConsumerImplementation.imp[IO](config).consume.take(1)
+          consumer                  <- Stream.resource(KafkaConsumerImplementation.resource[IO](config))
+          committableConsumerRecord <- consumer.consume.take(1)
         } yield committableConsumerRecord
 
         consumedResult
