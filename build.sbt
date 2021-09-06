@@ -22,6 +22,10 @@ lazy val genericVulcanVersion          = "1.7.1"
 lazy val enumeratumVersion             = "1.7.0"
 lazy val vulcanEnum                    = "1.7.1"
 
+/** For embedded Kafka with schema registry */
+//    "org.glassfish.jersey.ext.cdi" % "jersey-cdi1x"                    % "3.0.2",
+//    "javax.ws.rs"                  % "javax.ws.rs-api"                 % "2.1.1"
+
 lazy val applicationSettings = Seq(
   version := "0.1",
   scalaVersion := "2.13.5",
