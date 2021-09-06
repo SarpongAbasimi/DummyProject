@@ -24,7 +24,7 @@ object KafkaProducerImplementation {
       .resource[String, MessageEvent](producerSettings[F](kafkaConfigurations))
       .map(producer => imp[F](kafkaConfigurations, producer))
 
-  private def imp[F[_]: Sync: ConcurrentEffect: ContextShift](
+  def imp[F[_]: Sync: ConcurrentEffect: ContextShift](
       kafkaConfig: KafkaConfig,
       kafkaProducer: KafkaProducer[F, String, MessageEvent]
   ): KafkaProducerAlgebra[F, String, MessageEvent] =

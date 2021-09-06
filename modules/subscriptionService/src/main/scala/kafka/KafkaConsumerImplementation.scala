@@ -33,7 +33,7 @@ object KafkaConsumerImplementation {
       def consume: Stream[F, CommittableConsumerRecord[F, String, MessageEvent]] =
         Stream(consumer).evalTap(_.subscribeTo(kafkaConfig.topic.topic)).flatMap { kafkaConsumer =>
           Stream.eval(
-            Sync[F].delay(s"About to consume data from topic: ${kafkaConfig.topic.topic}")
+            Sync[F].delay(println(s"About to consume data from topic: ${kafkaConfig.topic.topic}"))
           ) *> kafkaConsumer.stream
         }
     }
