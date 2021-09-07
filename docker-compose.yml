@@ -40,6 +40,7 @@ services:
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
   db:
     image: postgres
+    restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -68,5 +69,10 @@ services:
     command:
     - connectRetries=60
     - DB_URL=jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
+    ports:
+    - "5000:5000"
     depends_on:
+      - zookeeper
+      - kafka
+      - schema-registry
       - db

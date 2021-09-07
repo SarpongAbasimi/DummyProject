@@ -10,4 +10,6 @@ echo "About to run test suites"
 
 sbt test
 
+docker-compose -f docker-compose-test.yml down
+
 echo "Done . . . "
