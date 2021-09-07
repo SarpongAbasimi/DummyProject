@@ -38,15 +38,9 @@ import fs2.kafka.{
   Deserializer => ConsumerDeserializer
 }
 import migrations.DbMigrations
-import net.manub.embeddedkafka.schemaregistry.{EmbeddedKafka, EmbeddedKafkaConfig}
 import org.scalatest.FutureOutcome
 
-class KafkaSpec
-    extends AsyncFreeSpec
-    with AsyncIOSpec
-    with Matchers
-    with EmbeddedKafka
-    with ForAllTestContainer {
+class KafkaSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with ForAllTestContainer {
   override lazy val container: PostgreSQLContainer = PostgreSQLContainer()
 
   lazy val transactor =
@@ -81,83 +75,75 @@ class KafkaSpec
   "Kafka" - {
     "should receive a message event when published" in {
 
-      /**
-       * Embedded kafka
-       * with schema registry not working -
-       * Test passes when a stand alone schema registry is run
-       */
+      val operationType = NewSubscription
+      val organization  = Organization("47Degrees")
+      val repository    = Repository("Scala Exercise")
 
-      implicit val kafkaConfig = EmbeddedKafkaConfig(kafkaPort = 9092, schemaRegistryPort = 8081)
+      val config = KafkaConfig(
+        Topic("dummyProject"),
+        BootstrapServer("localhost:9092"),
+        GroupId("publisher"),
+        SchemaRegistryUrl("http://localhost:8081"),
+        UserName("Ben"),
+        Password("password")
+      )
 
-      withRunningKafka {
-        val operationType = NewSubscription
-        val organization  = Organization("47Degrees")
-        val repository    = Repository("Scala Exercise")
-
-        val config = KafkaConfig(
-          Topic("dummyProject"),
-          BootstrapServer("localhost:9092"),
-          GroupId("publisher"),
-          SchemaRegistryUrl("http://localhost:8081"),
-          UserName("Ben"),
-          Password("password")
-        )
-
-        val consumedResult: Stream[IO, CommittableConsumerRecord[IO, String, MessageEvent]] = for {
-          producerSerializer <- Stream.eval(
-            IO(
-              avroSerializer[MessageEvent].using(
-                AvroSettings(
-                  SchemaRegistryClientSettings[IO](config.schemaRegistryUrl.schemaRegistryUrl)
-                )
+      val consumedResult: Stream[IO, CommittableConsumerRecord[IO, String, MessageEvent]] = for {
+        producerSerializer <- Stream.eval(
+          IO(
+            avroSerializer[MessageEvent].using(
+              AvroSettings(
+                SchemaRegistryClientSettings[IO](config.schemaRegistryUrl.schemaRegistryUrl)
               )
             )
           )
-          producerSettings <- Stream.eval(
-            IO.pure(
-              ProducerSettings(
-                keySerializer = Serializer[IO, String],
-                valueSerializer = producerSerializer
-              ).withBootstrapServers("localhost:9092")
-            )
+        )
+        producerSettings <- Stream.eval(
+          IO.pure(
+            ProducerSettings(
+              keySerializer = Serializer[IO, String],
+              valueSerializer = producerSerializer
+            ).withBootstrapServers("localhost:9092")
           )
-          producerResource <- Stream.resource(KafkaProducer.resource(producerSettings))
-          _ <- Stream.eval(
-            KafkaProducerImplementation
-              .imp[IO](config, producerResource)
-              .publish("1", MessageEvent(operationType, organization, repository))
+        )
+        producerResource <- Stream.resource(KafkaProducer.resource(producerSettings))
+        _ <- Stream.eval(
+          KafkaProducerImplementation
+            .imp[IO](config, producerResource)
+            .publish("1", MessageEvent(operationType, organization, repository))
+        )
+        _ <- Stream.eval(IO())
+        consumerDeserializer <- Stream.eval(
+          IO.pure(avroDeserializer[MessageEvent].using(AvroSettings {
+            SchemaRegistryClientSettings[IO](config.schemaRegistryUrl.schemaRegistryUrl)
+          }))
+        )
+        consumerSettings <- Stream.eval(
+          IO(
+            ConsumerSettings[IO, String, MessageEvent](
+              keyDeserializer = ConsumerDeserializer[IO, String],
+              valueDeserializer = consumerDeserializer
+            ).withAutoOffsetReset(AutoOffsetReset.Earliest)
+              .withBootstrapServers(config.bootstrapServer.bootstrapServer)
+              .withGroupId(config.groupId.groupId)
           )
-          _ <- Stream.eval(IO())
-          consumerDeserializer <- Stream.eval(
-            IO.pure(avroDeserializer[MessageEvent].using(AvroSettings {
-              SchemaRegistryClientSettings[IO](config.schemaRegistryUrl.schemaRegistryUrl)
-            }))
-          )
-          consumerSettings <- Stream.eval(
-            IO(
-              ConsumerSettings[IO, String, MessageEvent](
-                keyDeserializer = ConsumerDeserializer[IO, String],
-                valueDeserializer = consumerDeserializer
-              ).withAutoOffsetReset(AutoOffsetReset.Earliest)
-                .withBootstrapServers(config.bootstrapServer.bootstrapServer)
-                .withGroupId(config.groupId.groupId)
-            )
-          )
-          consumerResource          <- Stream.resource(KafkaConsumer.resource(consumerSettings))
-          consumer                  <- Stream.eval(IO(KafkaConsumerImplementation.imp[IO](config, consumerResource)))
-          committableConsumerRecord <- consumer.consume.take(1)
-        } yield committableConsumerRecord
+        )
+        consumerResource          <- Stream.resource(KafkaConsumer.resource(consumerSettings))
+        consumer                  <- Stream.eval(IO(KafkaConsumerImplementation.imp[IO](config, consumerResource)))
+        committableConsumerRecord <- consumer.consume.take(1)
+      } yield committableConsumerRecord
 
-        consumedResult
-          .map(_.record.value)
-          .compile
-          .lastOrError
-          .asserting { listOfMessageEvent =>
-            listOfMessageEvent.operationType shouldBe operationType
-            listOfMessageEvent.organization shouldBe organization
-            listOfMessageEvent.repository shouldBe repository
-          }
-      }
+      consumedResult
+        .map(_.record.value)
+        .compile
+        .lastOrError
+        .asserting { listOfMessageEvent =>
+          listOfMessageEvent.operationType shouldBe operationType
+          listOfMessageEvent.organization shouldBe organization
+          listOfMessageEvent.repository shouldBe repository
+          listOfMessageEvent.organization.organization shouldBe "47Degrees"
+          listOfMessageEvent.repository.repository shouldBe "Scala Exercise"
+        }
     }
   }
 }
