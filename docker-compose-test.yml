@@ -1,4 +1,5 @@
-version: "3.9"
+---
+version: '2'
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.0
@@ -10,7 +11,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  kafka:
+  broker:
     image: confluentinc/cp-server:6.2.0
     hostname: broker
     container_name: broker
@@ -38,41 +39,16 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-  db:
-    image: postgres
-    restart: always
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
 
   schema-registry:
     image: confluentinc/cp-schema-registry:6.2.0
     hostname: schema-registry
     container_name: schema-registry
     depends_on:
-      - kafka
+      - broker
     ports:
       - "8081:8081"
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: 'broker:29092'
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-
-  web:
-    build: .
-    environment:
-      - DB_USERNAME=${POSTGRES_USER}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_URL=jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
-    command:
-    - connectRetries=60
-    - DB_URL=jdbc:postgresql://db:${POSTGRES_PORT}/${POSTGRES_DB}
-    ports:
-    - "5000:5000"
-    depends_on:
-      - zookeeper
-      - kafka
-      - schema-registry
-      - db

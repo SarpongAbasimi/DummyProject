@@ -8,11 +8,11 @@ import io.circe.generic.extras.semiauto.{
   deriveUnwrappedEncoder
 }
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-
+import vulcan.Codec
+import enumeratum.{Enum, EnumEntry, VulcanEnum}
 import java.util.UUID
-import java.time.{Instant}
-
-sealed trait Subscription extends Product with Serializable
+import java.time.Instant
+import vulcan.generic._
 
 object Types {
   implicit val config: Configuration = Configuration.default.withSnakeCaseMemberNames
@@ -43,6 +43,7 @@ object Types {
   object Repository {
     implicit val decoder: Decoder[Repository] = deriveUnwrappedDecoder[Repository]
     implicit val encoder: Encoder[Repository] = deriveUnwrappedEncoder[Repository]
+    implicit val codec: Codec[Repository]     = Codec.derive[Repository]
   }
 
   final case class SubscribeAt(subscribeAt: Instant) extends AnyVal
@@ -66,7 +67,7 @@ object Types {
       organization: Owner,
       repository: Repository
   )
-  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData]) extends Subscription
+  final case class GetSubscriptions(subscriptions: List[GetSubscriptionData])
 
   object PostSubscriptionData {
     implicit val postSubscriptionsDataDecoder: Decoder[PostSubscriptionData] =
@@ -74,7 +75,7 @@ object Types {
     implicit val postSubscriptionsDataEncoder: Encoder[PostSubscriptionData] =
       deriveEncoder[PostSubscriptionData]
   }
-  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData]) extends Subscription
+  final case class PostSubscriptions(subscriptions: List[PostSubscriptionData])
   object PostSubscriptions {
     implicit val decoder: Decoder[PostSubscriptions] =
       deriveDecoder[PostSubscriptions]
@@ -181,12 +182,58 @@ object Types {
       responseUrl: ResponseUrl,
       triggerId: TriggerId,
       apiAppId: ApiAppId
-  ) extends Subscription
+  )
 
   object SlackCommandRequestBody {
     implicit val encoder: Encoder[SlackCommandRequestBody] =
       deriveConfiguredEncoder[SlackCommandRequestBody]
     implicit val decoder: Decoder[SlackCommandRequestBody] =
       deriveConfiguredDecoder[SlackCommandRequestBody]
+  }
+
+  final case class SchemaRegistryUrl(
+      schemaRegistryUrl: String
+  ) extends AnyVal
+
+  final case class Password(
+      password: String
+  ) extends AnyVal
+
+  final case class Topic(
+      topic: String
+  ) extends AnyVal
+  final case class BootstrapServer(
+      bootstrapServer: String
+  ) extends AnyVal
+  final case class GroupId(
+      groupId: String
+  ) extends AnyVal
+
+  @AvroNamespace("com.OperationType")
+  @AvroDoc("The different operation type")
+  sealed trait OperationType extends Product with Serializable with EnumEntry
+  object OperationType extends Enum[OperationType] with VulcanEnum[OperationType] {
+    case object NewSubscription    extends OperationType
+    case object DeleteSubscription extends OperationType
+
+    val values = findValues
+  }
+
+  final case class Organization(organization: String) extends AnyVal
+
+  object Organization {
+    implicit val codec: Codec[Organization] = Codec.derive[Organization]
+  }
+
+  @AvroNamespace("com.MessageEvent")
+  final case class MessageEvent(
+      operationType: OperationType,
+      organization: Organization,
+      repository: Repository
+  )
+
+  object MessageEvent {
+    implicit val codec: Codec[MessageEvent] =
+      Codec.derive[MessageEvent]
   }
 }

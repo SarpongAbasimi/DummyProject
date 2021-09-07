@@ -15,20 +15,14 @@ How To Run Application
 - Open the `build.sbt` file using IDE of choice
 - `sbt run`
 
+# To Run Test
+
+- run `./runtest.sh` from the root of the application
 
 # Implemented Wrapper Using GitHub API
 
 
 - Repository contributors
-
-
-# Still To Be Implemented 
-
-
-- Repository tags 
-- Followers of a user
-- Repositories for a User
-- Unit Test
 
 
 # Tech Stack

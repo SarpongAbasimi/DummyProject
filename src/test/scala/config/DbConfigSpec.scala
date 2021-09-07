@@ -1,11 +1,8 @@
 package config
 
-import cats.effect.testing.scalatest.AsyncIOSpec
-import org.scalatest.matchers.should.Matchers
 import cats.effect.IO
-import org.scalatest.freespec.AsyncFreeSpec
 
-class DbConfigSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers {
+class DbConfigSpec extends ConfBaseSpec {
   "DbConfig" - {
     "loadApplicationConfig" in {
       ApplicationConfig
