@@ -1,5 +1,6 @@
-import routes.Routes
+import routes.{Routes, SwaggerRoutes}
 import cats.effect._
+import cats.implicits._
 import config.KafkaConfig
 import fs2.Stream
 import connectionLayer.{DbConnection, UserAlgebra}
@@ -40,8 +41,9 @@ object Server {
         transactor,
         kafkaProducer
       )
-
-      services = (Routes.subscription[F](subscriptionService)).orNotFound
+      blocker <- Stream.resource(Blocker[F])
+      services = (Routes.subscription[F](subscriptionService) <+> SwaggerRoutes
+        .swagger[F](blocker)).orNotFound
       exitCode <- BlazeServerBuilder[F](global)
         .bindHttp(5000, "localhost")
         .withHttpApp(services)
