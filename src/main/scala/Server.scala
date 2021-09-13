@@ -45,7 +45,7 @@ object Server {
       services = (Routes.subscription[F](subscriptionService) <+> SwaggerRoutes
         .swagger[F](blocker)).orNotFound
       exitCode <- BlazeServerBuilder[F](global)
-        .bindHttp(6000, "0.0.0.0")
+        .bindHttp(5000, "0.0.0.0")
         .withHttpApp(services)
         .serve
     } yield exitCode
