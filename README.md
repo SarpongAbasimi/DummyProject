@@ -27,6 +27,7 @@ How To Run Application
 
 # Tech Stack
 
-
 - Cats-effect
 - http4s
+- Kafka (fs2-Kafka)
+- fs2
